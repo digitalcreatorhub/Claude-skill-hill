@@ -8,7 +8,10 @@
 <meta name="theme-color" content="#2E47F5">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Skill Hill">
 <meta property="og:title" content="Claude Skill Hill">
 <meta property="og:description" content="Освой Claude ступень за ступенью. Бесплатно.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -136,6 +139,11 @@ canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);di
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
 .seg button{all:unset;cursor:pointer;padding:7px 14px;font-weight:600;font-size:14px}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.install{display:flex;gap:12px;align-items:center;background:var(--accent-soft);border:1px solid var(--accent);border-radius:18px;padding:12px 14px}
+.install img{width:48px;height:48px;border-radius:12px;flex:none}
+.install p{margin:0;min-width:0;flex:1;font-size:14px;line-height:1.35}.install b{display:block;font-size:15px}
+.install .x{font-size:20px}
+.steps-i{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px}
 </style>
 </head>
 <body>
@@ -163,6 +171,7 @@ canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);di
       <div class="row"><span><span class="big" id="cnt">0</span> <span style="color:var(--muted)" id="ofTot"></span></span><span class="rank" id="rank"></span></div>
     </div>
     <div class="levels" id="levels" role="group"></div>
+    <div class="install" id="instBanner" hidden><img src="icon-192.png" alt=""><p><b id="instT"></b><span id="instS"></span></p><button class="btn" id="instB"></button><button class="x" id="instX" aria-label="×">×</button></div>
     <div class="next" id="nextBox">
       <p><span class="eyebrow" style="color:inherit;opacity:.7" id="nextLbl"></span><br><span class="t" id="nextT"></span><br><small id="pace"></small></p>
       <button class="btn" id="nextB"></button>
@@ -207,6 +216,7 @@ canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);di
     <div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow" id="upH"></div><div id="upList" style="display:flex;flex-direction:column;gap:10px"></div></div>
     <div class="card" style="display:flex;flex-direction:column;gap:14px">
       <div class="row2" style="justify-content:space-between"><b id="langL"></b><div class="seg" id="langSeg"><button data-l="ru">RU</button><button data-l="en">EN</button></div></div>
+      <button class="btn" id="instP" hidden></button>
       <div class="row2"><button class="btn ghost" id="redo"></button><button class="btn ghost" id="reset"></button></div>
       <p style="margin:0;color:var(--muted);font-size:13px" id="disc"></p>
     </div>
@@ -236,7 +246,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 
 /* ---------- texts ---------- */
 const T={
-ru:{nav:["Путь","Промпты","Конструктор","Профиль"],hello:n=>n?`Привет, ${n}!`:"Освой Claude ступень за ступенью",
+ru:{nav:["Путь","Промпты","Конструктор","Профиль"],inst:{t:"Установите приложение",s:"Иконка на экране, работает без интернета",b:"Установить",p:"Установить на телефон",done:"Приложение установлено!",h:"Как установить",ios:["Нажмите кнопку «Поделиться» внизу Safari (квадрат со стрелкой вверх)","Прокрутите и выберите «На экран „Домой“»","Нажмите «Добавить» — иконка Skill Hill появится на экране"],iosNote:"На iPhone установка работает только через Safari.",gen:["Откройте меню браузера (⋮ или ⋯)","Выберите «Установить приложение» или «Добавить на главный экран»","Подтвердите — иконка появится на экране"],ok:"Понятно"},hello:n=>n?`Привет, ${n}!`:"Освой Claude ступень за ступенью",
  lead:"Теория, пример, практика, ошибки и тест на каждой ступени.",of:t=>`из ${t} ступеней`,next:"Следующая ступень",go:"Подняться",
  rec:"Рекомендуем начать отсюда",topDone:"Уровень пройден. Вы на вершине!",soonTxt:"Продвинутые запросы, агенты, автоматизация бизнеса, работа с API и свои инструменты.",soon:"скоро",
  forYou:"для вас",pace:(n,d)=>`Ваш темп: ${n} · финиш примерно ${d}`,paceN:{5:"1 ступень за 2 дня",15:"1 ступень в день",30:"2 ступени в день"},
@@ -259,7 +269,7 @@ ru:{nav:["Путь","Промпты","Конструктор","Профиль"],
   minsL:[[5,"5 минут","лёгкий темп"],[15,"15 минут","оптимально"],[30,"30 минут","быстрый подъём"]]},
  cert:{t:"СЕРТИФИКАТ",s:"Этот сертификат подтверждает, что",c:(n,l)=>`успешно прошёл(ла) уровень ${n} «${l}» курса Claude Skill Hill`,d:(q,t)=>`${t} ступеней · тесты: ${q} из ${t} с первой попытки`,sk:"ОСВОЕННЫЕ НАВЫКИ",disc:"Независимый учебный курс. Не является официальной сертификацией Anthropic.",nm:"Участник",date:"Дата",sign:"Команда Skill Hill",sample:"ОБРАЗЕЦ",steps:"УРОВЕНЬ"},
  lvlUp:r=>`Новое звание: ${r}!`,badgeGot:b=>`Награда: ${b}`},
-en:{nav:["Path","Prompts","Builder","Profile"],hello:n=>n?`Hi, ${n}!`:"Master Claude step by step",
+en:{nav:["Path","Prompts","Builder","Profile"],inst:{t:"Install the app",s:"Home-screen icon, works offline",b:"Install",p:"Install on your phone",done:"App installed!",h:"How to install",ios:["Tap the Share button at the bottom of Safari (square with an up arrow)","Scroll and choose “Add to Home Screen”","Tap “Add” and the Skill Hill icon appears on your screen"],iosNote:"On iPhone, installing only works from Safari.",gen:["Open the browser menu (⋮ or ⋯)","Choose “Install app” or “Add to Home screen”","Confirm and the icon appears on your screen"],ok:"Got it"},hello:n=>n?`Hi, ${n}!`:"Master Claude step by step",
  lead:"Theory, example, practice, mistakes and a quiz on every step.",of:t=>`of ${t} steps`,next:"Next step",go:"Climb",
  rec:"We recommend starting here",topDone:"Level complete. You're at the summit!",soonTxt:"Advanced prompting, agents, business automation, the API and your own tools.",soon:"soon",
  forYou:"for you",pace:(n,d)=>`Your pace: ${n} · finish around ${d}`,paceN:{5:"1 step every 2 days",15:"1 step a day",30:"2 steps a day"},
@@ -503,8 +513,27 @@ function onboarding(){const o=t().ob,p=S.profile||{goal:"work",lvl:"new",mins:15
  const fin=()=>{st.name=$("#obName").value.trim();S.profile=st;save();close();go("path")};
  $("#obGo").onclick=fin;if($("#obSkip"))$("#obSkip").onclick=fin;if(s.querySelector(".x"))s.querySelector(".x").onclick=close}
 
+/* ---------- install ---------- */
+let deferredInstall=null;
+const isStandalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function instDismissed(){try{return localStorage.getItem("skillhill_inst_x")==="1"}catch(e){return false}}
+function renderInstall(){const i=t().inst,show=!isStandalone();
+ $("#instT").textContent=i.t;$("#instS").textContent=i.s;$("#instB").textContent=i.b;$("#instP").textContent=i.p;
+ $("#instBanner").hidden=!show||instDismissed();$("#instP").hidden=!show}
+async function doInstall(){const i=t().inst;
+ if(deferredInstall){deferredInstall.prompt();try{const r=await deferredInstall.userChoice;if(r.outcome==="accepted")deferredInstall=null}catch(e){}return}
+ const steps=isIOS()?i.ios:i.gen;
+ const s=sheet(`<div class="hd"><span class="eyebrow">Claude Skill Hill</span><button class="x">×</button></div><h3>${i.h}</h3>
+  <ol class="steps-i">${steps.map(z=>`<li>${esc(z)}</li>`).join("")}</ol>${isIOS()?`<p class="lead" style="margin-top:14px">${i.iosNote}</p>`:""}
+  <div class="actions"><button class="btn" id="instOk">${i.ok}</button></div>`);
+ s.querySelector(".x").onclick=close;$("#instOk").onclick=close}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;renderInstall()});
+window.addEventListener("appinstalled",()=>{deferredInstall=null;toast(t().inst.done);renderInstall()});
+$("#instB").onclick=doInstall;$("#instP").onclick=doInstall;
+$("#instX").onclick=()=>{try{localStorage.setItem("skillhill_inst_x","1")}catch(e){}renderInstall()};
 /* ---------- init ---------- */
-function applyLang(){document.documentElement.lang=S.lang;$$("nav.tabbar button span").forEach((e,i)=>e.textContent=t().nav[i]);
+function applyLang(){renderInstall();document.documentElement.lang=S.lang;$$("nav.tabbar button span").forEach((e,i)=>e.textContent=t().nav[i]);
  ({path:renderPath,lib:renderLib,build:renderBuild,me:renderMe})[view]()}
 applyLang();chips();go("path");
 if(!S.profile)onboarding();
