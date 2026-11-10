@@ -150,6 +150,24 @@ canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);di
 .daily.ok{background:var(--done-soft)}
 .time{display:inline-flex;gap:4px;align-items:center;font-size:13px;color:var(--muted);font-weight:500}
 a.btn{display:inline-block}
+.fourd{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.fourd:hover{border-color:var(--accent)}
+.fourd .ds{display:grid;grid-template-columns:repeat(2,22px);gap:4px;flex:none}
+.fourd .ds i{font:700 12px/22px var(--display);font-style:normal;text-align:center;border-radius:6px;background:var(--accent);color:#fff}
+.fourd b{display:block}.fourd span{font-size:14px;color:var(--muted)}
+.d4{display:flex;flex-direction:column;gap:14px}
+.d4 div{border-left:3px solid var(--accent);padding-left:12px}
+.d4 h4{margin:0 0 4px;font-size:16px}.d4 p{margin:0}.d4 em{display:block;margin-top:4px;color:var(--muted);font-size:14px}
+.slot{display:flex;flex-direction:column;gap:6px}
+.slot .lab{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.slot .opt{margin:0}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.score{font:700 44px var(--display);font-variant-numeric:tabular-nums}
+.chk{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.chk li{display:grid;grid-template-columns:24px 1fr;gap:8px}
+.chk .ok{color:var(--good);font-weight:700}.chk .no{color:var(--bad);font-weight:700}
+.chk small{display:block;color:var(--muted)}
+.meter{height:10px;border-radius:999px;background:var(--line);overflow:hidden}.meter i{display:block;height:100%;background:var(--done)}
 </style>
 </head>
 <body>
@@ -183,6 +201,7 @@ a.btn{display:inline-block}
       <button class="btn" id="nextB"></button>
     </div>
     <div class="card daily" id="daily"></div>
+    <button class="card fourd" id="fourD"></button>
     <main id="list" style="display:flex;flex-direction:column;gap:22px"></main>
   </section>
 
@@ -195,6 +214,8 @@ a.btn{display:inline-block}
 
   <!-- BUILDER -->
   <section id="v-build" class="view" hidden style="display:flex;flex-direction:column;gap:16px">
+    <div class="levels" id="prSeg" role="tablist"></div>
+    <div id="pr-build" style="display:flex;flex-direction:column;gap:16px">
     <div><h2 class="v" id="bH"></h2><p class="lead" id="bP"></p></div>
     <div class="card form">
       <label class="f"><span id="bl1"></span><input type="text" id="b1"></label>
@@ -207,6 +228,13 @@ a.btn{display:inline-block}
       <label class="f"><span id="bl6"></span><input type="text" id="b6"></label>
     </div>
     <div class="card"><div class="eyebrow" id="bRes" style="margin-bottom:8px"></div><div class="prompt" id="bOut"></div><button class="copy" id="bCopy"></button></div>
+    </div>
+    <div id="pr-game" hidden style="display:flex;flex-direction:column;gap:16px"></div>
+    <div id="pr-eval" hidden style="display:flex;flex-direction:column;gap:16px">
+      <div><h2 class="v" id="eH"></h2><p class="lead" id="eP"></p></div>
+      <div class="card form"><textarea id="evIn" style="min-height:140px"></textarea><div><button class="btn" id="evGo"></button></div></div>
+      <div id="evOut"></div>
+    </div>
   </section>
 
   <!-- PROFILE -->
@@ -248,13 +276,32 @@ a.btn{display:inline-block}
 <script src="level4.js"></script>
 <script src="level5.js"></script>
 <script src="updates.js"></script>
+<script src="game.js"></script>
+<script src="tracks.js"></script>
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ---------- texts ---------- */
 const T={
-ru:{nav:["Путь","Промпты","Конструктор","Профиль"],day:{h:"Задание дня",from:s=>`Из ступени «${s}»`,go:"Сделал(а) · +15 XP",done:"Задание дня выполнено. Возвращайтесь завтра!",open:"Открыть ступень"},min:m=>`≈ ${m} мин`,li:"В LinkedIn",nextH:"Куда расти дальше",nextP:"Официальные бесплатные курсы Anthropic: Claude Code, API, MCP, агенты. На английском, со значками для LinkedIn.",nextA:"Claude Academy →",inst:{t:"Установите приложение",s:"Иконка на экране, работает без интернета",b:"Установить",p:"Установить на телефон",done:"Приложение установлено!",h:"Как установить",ios:["Нажмите кнопку «Поделиться» внизу Safari (квадрат со стрелкой вверх)","Прокрутите и выберите «На экран „Домой“»","Нажмите «Добавить» — иконка Skill Hill появится на экране"],iosNote:"На iPhone установка работает только через Safari.",gen:["Откройте меню браузера (⋮ или ⋯)","Выберите «Установить приложение» или «Добавить на главный экран»","Подтвердите — иконка появится на экране"],ok:"Понятно"},hello:n=>n?`Привет, ${n}!`:"Освой Claude ступень за ступенью",
+ru:{nav:["Путь","Промпты","Практика","Профиль"],pr:["Конструктор","Игра","Оценщик"],
+ d4:{card:"4 принципа работы с ИИ",sub:"Подход 4D из курса AI Fluency от Anthropic",h:"Принципы 4D",intro:"Четыре навыка, которые не устаревают при смене моделей и функций. Проверяйте себя по ним в любой задаче.",
+  items:[["Делегирование","Решите, что поручить ИИ, а что оставить себе. ИИ хорош в черновиках, анализе и рутине; решения, ответственность и отношения с людьми — ваши.","Вопрос себе: что здесь сделает ИИ, а что должен сделать я?"],
+   ["Описание","Объясните задачу так, чтобы её понял умный новичок: контекст, цель, формат, пример.","Вопрос себе: понял бы задачу человек, который ничего обо мне не знает?"],
+   ["Различение","Оценивайте результат критически: факты, логику, тон, пропуски. Хороший текст ещё не значит верный.","Вопрос себе: что здесь может быть неправдой или упущено?"],
+   ["Добросовестность","Отвечайте за результат: проверяйте важное, честно говорите об участии ИИ там, где это важно, берегите чужие данные.","Вопрос себе: готов ли я подписаться под этим результатом?"]],ok:"Понятно"},
+ game:{h:"Собери промпт",p:"Для каждой части выберите сильный вариант. Так тренируется принцип «Описание».",round:(i,n)=>`Раунд ${i} из ${n}`,labs:["Роль","Контекст","Задача","Формат и критерии"],check:"Проверить",next:"Следующий раунд",again:"Ещё раз",res:(k,n)=>`Верно: ${k} из ${n}`,perfect:"Идеально! +20 XP",perfectAgain:"Идеально!",built:"Ваш собранный запрос",pick:"Выберите вариант в каждой части",doneAll:n=>`Пройдено раундов: ${n}`},
+ ev:{h:"Оценщик запроса",p:"Вставьте свой запрос и получите оценку по правилам курса. Текст не отправляется в интернет.",ph:"Например: Ты опытный копирайтер. Я владелец кофейни в Риге…",go:"Оценить",of:"из 10",
+  lv:["Слабый запрос: добавьте контекст, задачу и формат","Неплохо, но Claude придётся угадывать","Хороший запрос","Сильный запрос — так держать!"],
+  crit:[["Контекст","Кто вы, для кого результат, ситуация","Добавьте 1–2 предложения: кто вы и для кого результат."],
+   ["Задача","Ясное действие: напиши, сравни, найди…","Начните с глагола: «Напиши…», «Сравни…», «Найди…»."],
+   ["Формат","Таблица, список, длина, письмо…","Укажите вид ответа и длину: «таблицей», «до 100 слов»."],
+   ["Роль","Чьими глазами смотреть на задачу","Добавьте роль: «Ты опытный…»."],
+   ["Ограничения и критерии","Тон, запреты, что важно","Добавьте, чего избегать или какой нужен тон."],
+   ["Пример","Образец нужного результата","Если есть — вставьте пример текста, который нравится."],
+   ["Конкретика","Цифры, сроки, суммы, количества","Добавьте цифры: бюджет, срок, количество вариантов."]],
+  tooShort:"Слишком коротко для оценки — напишите хотя бы одно предложение.",toBuild:"Улучшить в конструкторе"},
+ trk:{pill:"★",c:l=>`успешно прошёл(ла) специализацию «${l}» курса Claude Skill Hill`,seal:"ТРЕК",li:"Специализация"},day:{h:"Задание дня",from:s=>`Из ступени «${s}»`,go:"Сделал(а) · +15 XP",done:"Задание дня выполнено. Возвращайтесь завтра!",open:"Открыть ступень"},min:m=>`≈ ${m} мин`,li:"В LinkedIn",nextH:"Куда расти дальше",nextP:"Официальные бесплатные курсы Anthropic: Claude Code, API, MCP, агенты. На английском, со значками для LinkedIn.",nextA:"Claude Academy →",inst:{t:"Установите приложение",s:"Иконка на экране, работает без интернета",b:"Установить",p:"Установить на телефон",done:"Приложение установлено!",h:"Как установить",ios:["Нажмите кнопку «Поделиться» внизу Safari (квадрат со стрелкой вверх)","Прокрутите и выберите «На экран „Домой“»","Нажмите «Добавить» — иконка Skill Hill появится на экране"],iosNote:"На iPhone установка работает только через Safari.",gen:["Откройте меню браузера (⋮ или ⋯)","Выберите «Установить приложение» или «Добавить на главный экран»","Подтвердите — иконка появится на экране"],ok:"Понятно"},hello:n=>n?`Привет, ${n}!`:"Освой Claude ступень за ступенью",
  lead:"Теория, пример, практика, ошибки и тест на каждой ступени.",of:t=>`из ${t} ступеней`,next:"Следующая ступень",go:"Подняться",
  rec:"Рекомендуем начать отсюда",topDone:"Уровень пройден. Вы на вершине!",soonTxt:"Продвинутые запросы, агенты, автоматизация бизнеса, работа с API и свои инструменты.",soon:"скоро",
  forYou:"для вас",pace:(n,d)=>`Ваш темп: ${n} · финиш примерно ${d}`,paceN:{5:"1 ступень за 2 дня",15:"1 ступень в день",30:"2 ступени в день"},
@@ -277,7 +324,24 @@ ru:{nav:["Путь","Промпты","Конструктор","Профиль"],
   minsL:[[5,"5 минут","лёгкий темп"],[15,"15 минут","оптимально"],[30,"30 минут","быстрый подъём"]]},
  cert:{t:"СЕРТИФИКАТ",s:"Этот сертификат подтверждает, что",c:(n,l)=>`успешно прошёл(ла) уровень ${n} «${l}» курса Claude Skill Hill`,d:(q,t)=>`${t} ступеней · тесты: ${q} из ${t} с первой попытки`,sk:"ОСВОЕННЫЕ НАВЫКИ",disc:"Независимый учебный курс. Не является официальной сертификацией Anthropic.",nm:"Участник",date:"Дата",sign:"Команда Skill Hill",sample:"ОБРАЗЕЦ",steps:"УРОВЕНЬ"},
  lvlUp:r=>`Новое звание: ${r}!`,badgeGot:b=>`Награда: ${b}`},
-en:{nav:["Path","Prompts","Builder","Profile"],day:{h:"Task of the day",from:s=>`From the step “${s}”`,go:"Done · +15 XP",done:"Today’s task is done. Come back tomorrow!",open:"Open step"},min:m=>`≈ ${m} min`,li:"Add to LinkedIn",nextH:"Where to go next",nextP:"Anthropic’s official free courses: Claude Code, the API, MCP, agents. In English, with LinkedIn badges.",nextA:"Claude Academy →",inst:{t:"Install the app",s:"Home-screen icon, works offline",b:"Install",p:"Install on your phone",done:"App installed!",h:"How to install",ios:["Tap the Share button at the bottom of Safari (square with an up arrow)","Scroll and choose “Add to Home Screen”","Tap “Add” and the Skill Hill icon appears on your screen"],iosNote:"On iPhone, installing only works from Safari.",gen:["Open the browser menu (⋮ or ⋯)","Choose “Install app” or “Add to Home screen”","Confirm and the icon appears on your screen"],ok:"Got it"},hello:n=>n?`Hi, ${n}!`:"Master Claude step by step",
+en:{nav:["Path","Prompts","Practice","Profile"],pr:["Builder","Game","Grader"],
+ d4:{card:"4 principles of working with AI",sub:"The 4D approach from Anthropic’s AI Fluency course",h:"The 4D principles",intro:"Four skills that don’t go out of date when models and features change. Check yourself against them in any task.",
+  items:[["Delegation","Decide what to hand to AI and what to keep. AI is good at drafts, analysis and routine; decisions, responsibility and relationships are yours.","Ask yourself: what will AI do here, and what must I do?"],
+   ["Description","Explain the task so a smart newcomer would get it: context, goal, format, example.","Ask yourself: would someone who knows nothing about me understand this?"],
+   ["Discernment","Judge the result critically: facts, logic, tone, gaps. Well-written isn’t the same as correct.","Ask yourself: what here could be wrong or missing?"],
+   ["Diligence","Own the result: check what matters, be honest about AI involvement where it matters, protect other people’s data.","Ask yourself: am I ready to put my name to this?"]],ok:"Got it"},
+ game:{h:"Build the prompt",p:"Pick the strong option for each part. This trains the “Description” principle.",round:(i,n)=>`Round ${i} of ${n}`,labs:["Role","Context","Task","Format & criteria"],check:"Check",next:"Next round",again:"Try again",res:(k,n)=>`Correct: ${k} of ${n}`,perfect:"Perfect! +20 XP",perfectAgain:"Perfect!",built:"Your assembled prompt",pick:"Pick an option in every part",doneAll:n=>`Rounds completed: ${n}`},
+ ev:{h:"Prompt grader",p:"Paste your prompt and get a score based on the course rules. Nothing is sent to the internet.",ph:"For example: You’re an experienced copywriter. I own a café in Riga…",go:"Grade it",of:"of 10",
+  lv:["Weak prompt: add context, a task and a format","Not bad, but Claude will have to guess","Good prompt","Strong prompt — keep it up!"],
+  crit:[["Context","Who you are, who it’s for, the situation","Add 1–2 sentences: who you are and who the result is for."],
+   ["Task","A clear action: write, compare, find…","Start with a verb: “Write…”, “Compare…”, “Find…”."],
+   ["Format","Table, list, length, email…","State the shape and length: “as a table”, “under 100 words”."],
+   ["Role","Whose eyes to see the task through","Add a role: “You’re an experienced…”."],
+   ["Constraints & criteria","Tone, limits, what matters","Add what to avoid or which tone you need."],
+   ["Example","A sample of the result you want","If you have one, paste an example you like."],
+   ["Specifics","Numbers, deadlines, amounts, counts","Add numbers: budget, deadline, how many options."]],
+  tooShort:"Too short to grade — write at least one sentence.",toBuild:"Improve it in the builder"},
+ trk:{pill:"★",c:l=>`has successfully completed the “${l}” track of Claude Skill Hill`,seal:"TRACK",li:"Track"},day:{h:"Task of the day",from:s=>`From the step “${s}”`,go:"Done · +15 XP",done:"Today’s task is done. Come back tomorrow!",open:"Open step"},min:m=>`≈ ${m} min`,li:"Add to LinkedIn",nextH:"Where to go next",nextP:"Anthropic’s official free courses: Claude Code, the API, MCP, agents. In English, with LinkedIn badges.",nextA:"Claude Academy →",inst:{t:"Install the app",s:"Home-screen icon, works offline",b:"Install",p:"Install on your phone",done:"App installed!",h:"How to install",ios:["Tap the Share button at the bottom of Safari (square with an up arrow)","Scroll and choose “Add to Home Screen”","Tap “Add” and the Skill Hill icon appears on your screen"],iosNote:"On iPhone, installing only works from Safari.",gen:["Open the browser menu (⋮ or ⋯)","Choose “Install app” or “Add to Home screen”","Confirm and the icon appears on your screen"],ok:"Got it"},hello:n=>n?`Hi, ${n}!`:"Master Claude step by step",
  lead:"Theory, example, practice, mistakes and a quiz on every step.",of:t=>`of ${t} steps`,next:"Next step",go:"Climb",
  rec:"We recommend starting here",topDone:"Level complete. You're at the summit!",soonTxt:"Advanced prompting, agents, business automation, the API and your own tools.",soon:"soon",
  forYou:"for you",pace:(n,d)=>`Your pace: ${n} · finish around ${d}`,paceN:{5:"1 step every 2 days",15:"1 step a day",30:"2 steps a day"},
@@ -329,7 +393,7 @@ function chips(){$("#xp").textContent=S.xp;$("#streak").textContent=streak()}
 
 /* ---------- nav ---------- */
 function go(v){view=v;$$(".view").forEach(x=>x.hidden=x.id!=="v-"+v);$$("nav.tabbar button").forEach(b=>b.setAttribute("aria-current",b.dataset.v===v?"page":"false"));
- ({path:renderPath,lib:renderLib,build:renderBuild,me:renderMe})[v]();scrollTo(0,0)}
+ ({path:renderPath,lib:renderLib,build:renderPractice,me:renderMe})[v]();scrollTo(0,0)}
 $$("nav.tabbar button").forEach(b=>b.onclick=()=>go(b.dataset.v));
 
 /* ---------- path ---------- */
@@ -356,12 +420,12 @@ function renderDaily(){const tt=t(),dd=tt.day,o=dayPick(),box=$("#daily");if(!o)
 function renderPath(){
  const tt=t(),Ls=L(),Lv=Ls[lv],p=S.profile;
  $("#hello").textContent=tt.hello(p&&p.name);$("#lead").textContent=tt.lead;
- $("#levels").innerHTML=Ls.map((x,i)=>`<button class="lv" aria-pressed="${i===lv}" data-i="${i}">${x.n}. ${esc(x.name)}${x.soon?` <small>${tt.soon}</small>`:""}</button>`).join("");
+ $("#levels").innerHTML=Ls.map((x,i)=>`<button class="lv" aria-pressed="${i===lv}" data-i="${i}">${x.kind==="track"?"★":x.n+"."} ${esc(x.name)}${x.soon?` <small>${tt.soon}</small>`:""}</button>`).join("");
  $$(".lv").forEach(b=>b.onclick=()=>{lv=+b.dataset.i;renderPath()});
  const tot=Lv.steps.length||30,n=Lv.steps.filter((_,i)=>S.done.includes(sid(Lv.id,i))).length;
  $("#cnt").textContent=n;$("#ofTot").textContent=tt.of(tot);$("#rank").textContent=tt.ranks[rankIdx()];
  const f=n/tot;path.style.strokeDashoffset=LEN*(1-f);const pt=path.getPointAtLength(LEN*f);$("#me").setAttribute("cx",pt.x);$("#me").setAttribute("cy",pt.y);
- renderDaily();const m=$("#list");m.innerHTML="";
+ renderDaily();render4D();const m=$("#list");m.innerHTML="";
  if(Lv.soon){m.innerHTML=`<div class="card soon"><h3>${esc(Lv.name)}</h3><p style="margin:0">${esc(Lv.sub)}. ${tt.soonTxt}</p></div>`;$("#nextBox").hidden=true;return}
  const rec=p&&Lv.id==="base"?GOAL_STEPS[p.goal]||[]:[];
  Lv.sections.forEach((s,si)=>{
@@ -423,6 +487,56 @@ function renderLib(){const tt=t(),Ls=L().filter(x=>x.steps.length);$("#libH").te
 $("#q").oninput=renderLib;$("#qs").onchange=renderLib;
 
 /* ---------- builder ---------- */
+let prTab=0;
+function renderPractice(){const tt=t();$("#prSeg").innerHTML=tt.pr.map((v,i)=>`<button class="lv" role="tab" aria-pressed="${i===prTab}" data-i="${i}">${v}</button>`).join("");
+ $$("#prSeg .lv").forEach(b=>b.onclick=()=>{prTab=+b.dataset.i;renderPractice()});
+ $("#pr-build").hidden=prTab!==0;$("#pr-game").hidden=prTab!==1;$("#pr-eval").hidden=prTab!==2;
+ if(prTab===0)renderBuild();if(prTab===1)renderGame();if(prTab===2)renderEval()}
+/* game */
+let gIdx=null;
+function renderGame(){const tt=t(),g=tt.game,R=S.lang==="en"?window.GAME_EN:window.GAME_RU;S.game=S.game||[];
+ if(gIdx===null){const k=R.findIndex(r=>!S.game.includes(r.id));gIdx=k<0?0:k}
+ const r=R[gIdx],box=$("#pr-game");const order=r.slots.map(sl=>sl.map((_,i)=>i).sort(()=>Math.random()-.5));const pick=r.slots.map(()=>null);
+ box.innerHTML=`<div><h2 class="v">${g.h}</h2><p class="lead">${g.p}</p></div>
+ <div class="card" style="display:flex;flex-direction:column;gap:14px"><div class="row2" style="justify-content:space-between"><span class="eyebrow">${g.round(gIdx+1,R.length)}</span><span class="time">${g.doneAll(S.game.length)}</span></div>
+ <p style="margin:0;font-weight:600">${esc(r.sc)}</p>
+ ${r.slots.map((sl,si)=>`<div class="slot"><span class="lab">${g.labs[si]}</span>${order[si].map(oi=>`<button class="opt" data-s="${si}" data-o="${oi}" aria-pressed="false">${esc(sl[oi])}</button>`).join("")}</div>`).join("")}
+ <div class="row2"><button class="btn" id="gCheck">${g.check}</button></div><div id="gRes"></div></div>`;
+ box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(box.dataset.locked)return;const si=+b.dataset.s;pick[si]=+b.dataset.o;box.querySelectorAll(`.opt[data-s="${si}"]`).forEach(z=>z.setAttribute("aria-pressed",z===b))});
+ delete box.dataset.locked;
+ $("#gCheck").onclick=()=>{if(pick.some(x=>x===null)){$("#gRes").innerHTML=`<p style="margin:0;color:var(--bad);font-weight:600">${g.pick}</p>`;return}
+  box.dataset.locked="1";let k=0;box.querySelectorAll(".opt").forEach(b=>{const si=+b.dataset.s,oi=+b.dataset.o;b.setAttribute("aria-pressed","false");if(oi===0)b.classList.add("right");else if(pick[si]===oi)b.classList.add("wrong")});
+  pick.forEach(p=>{if(p===0)k++});const perfect=k===r.slots.length,first=perfect&&!S.game.includes(r.id);if(first){S.game.push(r.id);addXP(20)}
+  const txt=r.slots.map(sl=>sl[0]).join("\n");
+  $("#gRes").innerHTML=`<p style="margin:0 0 10px;font-weight:700">${perfect?(first?g.perfect:g.perfectAgain):g.res(k,r.slots.length)}</p><div class="eyebrow" style="margin-bottom:6px">${g.built}</div><div class="prompt" id="gTxt"></div><button class="copy" id="gCopy">${tt.copy}</button>
+  <div class="row2" style="margin-top:12px">${perfect?"":`<button class="btn ghost" id="gAgain">${g.again}</button>`}<button class="btn" id="gNext">${g.next}</button></div>`;
+  $("#gTxt").textContent=txt;copyBtn($("#gCopy"),txt,$("#gTxt"));
+  $("#gNext").onclick=()=>{gIdx=(gIdx+1)%R.length;renderGame();scrollTo(0,0)};if($("#gAgain"))$("#gAgain").onclick=renderGame}}
+/* evaluator */
+function grade(s){const x=" "+s.toLowerCase().replace(/\s+/g," ")+" ",has=a=>a.some(w=>x.includes(w));
+ return [
+  [2,s.length>=160||has([" я "," мы "," мой "," моя "," мои "," наш"," клиент"," контекст"," для "," аудитор"," i "," we "," my "," our "," client"," context"," for "," audience"," i'm "," i’m "])],
+  [2,has(["напиши","сделай","составь","найди","объясни","сравни","придумай","проанализ","помоги","переведи","создай","подготовь","проверь","дай ","перечисли","предложи","оцени","write","make","create","find","explain","compare","analy","help","translate","prepare","check","give","list","draft","summar","suggest","plan"])],
+  [2,has(["таблиц","списк","список","абзац"," слов","пункт","json","письм","шаг","строк","кратко","коротко","план ","таблица","table"," list","bullet","paragraph"," words","email","steps","lines","brief","format"])],
+  [1,has([" ты ","представь","выступи","в роли"," you are ","you're","you’re","act as","imagine","as an ","as a "])],
+  [1,has([" не "," без "," до ","не больше","не длиннее"," тон","критер","избега","только"," don't"," don’t","without"," under ","no more","tone","criteria","avoid"," only "," must"])],
+  [1,has(["пример","вот ","«","образец","example","here is","here's","here’s","sample","\""])],
+  [1,/\d/.test(s)]]}
+function renderEval(){const e=t().ev;$("#eH").textContent=e.h;$("#eP").textContent=e.p;$("#evIn").placeholder=e.ph;$("#evGo").textContent=e.go}
+$("#evGo").onclick=()=>{const e=t().ev,s=$("#evIn").value.trim(),out=$("#evOut");
+ if(s.length<15){out.innerHTML=`<div class="card"><p style="margin:0">${e.tooShort}</p></div>`;return}
+ const g=grade(s),sc=g.reduce((a,[w,ok])=>a+(ok?w:0),0),lvl=sc<=3?0:sc<=6?1:sc<=8?2:3;
+ out.innerHTML=`<div class="card" style="display:flex;flex-direction:column;gap:14px"><div class="row2" style="align-items:baseline;gap:8px"><span class="score">${sc}</span><span style="color:var(--muted)">${e.of}</span></div>
+ <div class="meter"><i style="width:${sc*10}%"></i></div><p style="margin:0;font-weight:600">${e.lv[lvl]}</p>
+ <ul class="chk">${g.map(([w,ok],i)=>`<li><span class="${ok?"ok":"no"}">${ok?"✓":"✗"}</span><span><b>${e.crit[i][0]}</b><small>${ok?e.crit[i][1]:e.crit[i][2]}</small></span></li>`).join("")}</ul>
+ <div><button class="btn ghost" id="evB">${e.toBuild}</button></div></div>`;
+ $("#evB").onclick=()=>{prTab=0;renderPractice()};
+ if(sc>=9&&!S.graded9){S.graded9=true;addXP(10)}};
+/* 4D */
+function render4D(){const d=t().d4;$("#fourD").innerHTML=`<span class="ds"><i>D</i><i>D</i><i>D</i><i>D</i></span><span><b>${d.card}</b><span>${d.sub}</span></span>`}
+$("#fourD").onclick=()=>{const d=t().d4;const s=sheet(`<div class="hd"><span class="eyebrow">AI Fluency · 4D</span><button class="x">×</button></div><h3>${d.h}</h3><p class="lead" style="margin:-4px 0 16px">${d.intro}</p>
+ <div class="d4">${d.items.map(([a,b,c])=>`<div><h4>${a}</h4><p>${b}</p><em>${c}</em></div>`).join("")}</div><div class="actions"><button class="btn" id="d4ok">${d.ok}</button></div>`);
+ s.querySelector(".x").onclick=close;$("#d4ok").onclick=close};
 function renderBuild(){const tt=t();$("#bH").textContent=tt.bH;$("#bP").textContent=tt.bP;$("#bRes").textContent=tt.bRes;$("#bCopy").textContent=tt.copy;
  tt.b.forEach((v,i)=>{$("#bl"+(i+1)).textContent=v;const el=$("#b"+(i+1));if(tt.bPh[i])el.placeholder=tt.bPh[i]});
  const f4=$("#b4").selectedIndex,f5=$("#b5").selectedIndex;
@@ -448,14 +562,14 @@ function renderMe(){const tt=t(),Ls=L(),d=S.done.filter(x=>x.startsWith("base:")
  $("#stats").innerHTML=[S.xp,streak(),S.done.length].map((n,i)=>`<div class="card"><b>${n}</b><span>${tt.st[i]}</span></div>`).join("");
  const bs=badgeState();$("#badges").innerHTML=tt.badges.map((b,i)=>`<div class="badge ${bs[i]?"on":"off"}"><i>${b[0]}</i><b>${b[1]}</b><br><span style="color:var(--muted)">${b[2]}</span></div>`).join("");
  const lvDone=Lv=>Lv.steps.filter((_,i)=>S.done.includes(sid(Lv.id,i))).length;
- $("#certLv").innerHTML=Ls.map((Lv,i)=>`<button class="lv" aria-pressed="${i===certLv}" data-i="${i}">${Lv.n}. ${esc(Lv.name)}${lvDone(Lv)>=Lv.steps.length&&Lv.steps.length?" ✓":""}</button>`).join("");
+ $("#certLv").innerHTML=Ls.map((Lv,i)=>`<button class="lv" aria-pressed="${i===certLv}" data-i="${i}">${Lv.kind==="track"?"★":Lv.n+"."} ${esc(Lv.name)}${lvDone(Lv)>=Lv.steps.length&&Lv.steps.length?" ✓":""}</button>`).join("");
  $$("#certLv .lv").forEach(b=>b.onclick=()=>{certLv=+b.dataset.i;renderMe()});
  const Lv=Ls[certLv],dn=lvDone(Lv),tot=Lv.steps.length,ok=tot>0&&dn>=tot;
  drawCert(ok,Lv);$("#certNote").textContent=ok?tt.certOk:tt.certLock(tot-dn,Lv.name);$("#certDl").textContent=tt.dl;$("#certSh").textContent=tt.share;
  $("#certDl").disabled=$("#certSh").disabled=!ok;$("#certSh").hidden=!navigator.share;
  const cd=S.certDates&&S.certDates[Lv.id]?new Date(S.certDates[Lv.id]):new Date();
  $("#certLi").textContent=tt.li;$("#certLi").hidden=!ok;
- $("#certLi").href="https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name="+encodeURIComponent("Claude Skill Hill — "+(S.lang==="en"?"Level ":"Уровень ")+Lv.n+": "+Lv.name)+"&organizationName="+encodeURIComponent("Claude Skill Hill")+"&issueYear="+cd.getFullYear()+"&issueMonth="+(cd.getMonth()+1)+"&certUrl="+encodeURIComponent("https://digitalcreatorhub.github.io/Claude-skill-hill/");
+ $("#certLi").href="https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name="+encodeURIComponent("Claude Skill Hill — "+(Lv.kind==="track"?t().trk.li:(S.lang==="en"?"Level ":"Уровень ")+Lv.n)+": "+Lv.name)+"&organizationName="+encodeURIComponent("Claude Skill Hill")+"&issueYear="+cd.getFullYear()+"&issueMonth="+(cd.getMonth()+1)+"&certUrl="+encodeURIComponent("https://digitalcreatorhub.github.io/Claude-skill-hill/");
  $("#nextH").textContent=tt.nextH;$("#nextP").textContent=tt.nextP;$("#nextA").textContent=tt.nextA;
  $("#upH").textContent=tt.upH;const U=(window.UPDATES||[]).slice(0,6);
  $("#upList").innerHTML=U.map(u=>`<div><div style="font-size:13px;color:var(--muted)">${new Date(u.date).toLocaleDateString(S.lang==="en"?"en-GB":"ru-RU",{day:"numeric",month:"long",year:"numeric"})}</div><div>${esc(u[S.lang]||u.ru)}</div></div>`).join("");
@@ -489,7 +603,7 @@ async function drawCert(ok,Lv){const c=$("#cert"),x=c.getContext("2d"),tt=t().ce
  let fs=92;const nf=/[а-яё]/i.test(name)?"'Marck Script'":"'Great Vibes'";x.font=fs+"px "+nf+", cursive";while(x.measureText(name).width>840&&fs>44){fs-=4;x.font=fs+"px "+nf+", cursive"}
  const ng=x.createLinearGradient(0,240,0,320);ng.addColorStop(0,"#FFFFFF");ng.addColorStop(1,"#DCE1FF");x.fillStyle=ng;x.fillText(name,W/2,312);
  x.strokeStyle="rgba(242,184,61,.7)";x.lineWidth=1.5;x.beginPath();x.moveTo(W/2-320,334);x.lineTo(W/2+320,334);x.stroke();
- x.fillStyle="#FFFFFF";x.font="600 25px 'Golos Text', sans-serif";x.fillText(tt.c(Lv.n,Lv.name),W/2,380);
+ x.fillStyle="#FFFFFF";x.font="600 25px 'Golos Text', sans-serif";x.fillText(Lv.kind==="track"?t().trk.c(Lv.name):tt.c(Lv.n,Lv.name),W/2,380);
  x.fillStyle="#AEB6E0";x.font="400 20px 'Golos Text', sans-serif";x.fillText(tt.d(Math.min(Lv.steps.length,S.quiz.filter(k=>k.startsWith(Lv.id+":")).length),Lv.steps.length),W/2,414);
  // skills
  x.fillStyle=GOLD;x.font="500 13px Unbounded, sans-serif";x.letterSpacing="4px";x.fillText(tt.sk,W/2,462);x.letterSpacing="0px";
@@ -502,7 +616,7 @@ async function drawCert(ok,Lv){const c=$("#cert"),x=c.getContext("2d"),tt=t().ce
  x.fillStyle=GOLD;x.beginPath();for(let i=0;i<48;i++){const r=i%2?74:82,a=i*Math.PI/24;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.closePath();x.fill();
  const sg=x.createRadialGradient(-20,-20,10,0,0,68);sg.addColorStop(0,"#FFE29A");sg.addColorStop(1,GOLD2);x.fillStyle=sg;x.beginPath();x.arc(0,0,66,0,7);x.fill();
  x.strokeStyle="rgba(8,11,36,.55)";x.lineWidth=2;x.beginPath();x.arc(0,0,56,0,7);x.stroke();
- x.fillStyle="#0B1030";x.font="500 11px Unbounded, sans-serif";x.letterSpacing="3px";x.fillText(tt.steps,0,34);x.letterSpacing="0px";x.font="700 40px Unbounded, sans-serif";x.fillText(String(Lv.n),0,10);x.font="500 11px Unbounded, sans-serif";x.letterSpacing="0px";
+ x.fillStyle="#0B1030";x.font="500 11px Unbounded, sans-serif";x.letterSpacing="3px";x.fillText(Lv.kind==="track"?t().trk.seal:tt.steps,0,34);x.letterSpacing="0px";x.font="700 40px Unbounded, sans-serif";x.fillText(Lv.kind==="track"?"★":String(Lv.n),0,10);x.font="500 11px Unbounded, sans-serif";x.letterSpacing="0px";
  x.beginPath();x.moveTo(-26,-22);x.lineTo(-13,-22);x.lineTo(-13,-32);x.lineTo(0,-32);x.lineTo(0,-42);x.lineTo(13,-42);x.strokeStyle="#0B1030";x.lineWidth=3;x.stroke();
  x.restore();
  // date (left)
@@ -560,7 +674,7 @@ $("#instB").onclick=doInstall;$("#instP").onclick=doInstall;
 $("#instX").onclick=()=>{try{localStorage.setItem("skillhill_inst_x","1")}catch(e){}renderInstall()};
 /* ---------- init ---------- */
 function applyLang(){renderInstall();document.documentElement.lang=S.lang;$$("nav.tabbar button span").forEach((e,i)=>e.textContent=t().nav[i]);
- ({path:renderPath,lib:renderLib,build:renderBuild,me:renderMe})[view]()}
+ ({path:renderPath,lib:renderLib,build:renderPractice,me:renderMe})[view]()}
 applyLang();chips();go("path");
 if(!S.profile)onboarding();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
