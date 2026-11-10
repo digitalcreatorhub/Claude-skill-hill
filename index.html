@@ -144,6 +144,12 @@ canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);di
 .install p{margin:0;min-width:0;flex:1;font-size:14px;line-height:1.35}.install b{display:block;font-size:15px}
 .install .x{font-size:20px}
 .steps-i{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px}
+.daily{display:flex;flex-direction:column;gap:10px;border-color:var(--done)}
+.daily .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.daily h3{margin:0;font:600 17px/1.3 var(--display)}
+.daily.ok{background:var(--done-soft)}
+.time{display:inline-flex;gap:4px;align-items:center;font-size:13px;color:var(--muted);font-weight:500}
+a.btn{display:inline-block}
 </style>
 </head>
 <body>
@@ -176,6 +182,7 @@ canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);di
       <p><span class="eyebrow" style="color:inherit;opacity:.7" id="nextLbl"></span><br><span class="t" id="nextT"></span><br><small id="pace"></small></p>
       <button class="btn" id="nextB"></button>
     </div>
+    <div class="card daily" id="daily"></div>
     <main id="list" style="display:flex;flex-direction:column;gap:22px"></main>
   </section>
 
@@ -211,8 +218,9 @@ canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);di
       <div class="eyebrow" id="certH"></div><div class="levels" id="certLv"></div>
       <canvas id="cert" width="1200" height="840"></canvas>
       <p id="certNote" style="margin:0;color:var(--muted);font-size:14px"></p>
-      <div class="row2"><button class="btn" id="certDl"></button><button class="btn ghost" id="certSh"></button></div>
+      <div class="row2"><button class="btn" id="certDl"></button><a class="btn ghost" id="certLi" target="_blank" rel="noopener" style="text-decoration:none"></a><button class="btn ghost" id="certSh"></button></div>
     </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow" id="nextH"></div><p style="margin:0" id="nextP"></p><a href="https://academy.claude.com" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600" id="nextA"></a></div>
     <div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow" id="upH"></div><div id="upList" style="display:flex;flex-direction:column;gap:10px"></div></div>
     <div class="card" style="display:flex;flex-direction:column;gap:14px">
       <div class="row2" style="justify-content:space-between"><b id="langL"></b><div class="seg" id="langSeg"><button data-l="ru">RU</button><button data-l="en">EN</button></div></div>
@@ -246,7 +254,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 
 /* ---------- texts ---------- */
 const T={
-ru:{nav:["Путь","Промпты","Конструктор","Профиль"],inst:{t:"Установите приложение",s:"Иконка на экране, работает без интернета",b:"Установить",p:"Установить на телефон",done:"Приложение установлено!",h:"Как установить",ios:["Нажмите кнопку «Поделиться» внизу Safari (квадрат со стрелкой вверх)","Прокрутите и выберите «На экран „Домой“»","Нажмите «Добавить» — иконка Skill Hill появится на экране"],iosNote:"На iPhone установка работает только через Safari.",gen:["Откройте меню браузера (⋮ или ⋯)","Выберите «Установить приложение» или «Добавить на главный экран»","Подтвердите — иконка появится на экране"],ok:"Понятно"},hello:n=>n?`Привет, ${n}!`:"Освой Claude ступень за ступенью",
+ru:{nav:["Путь","Промпты","Конструктор","Профиль"],day:{h:"Задание дня",from:s=>`Из ступени «${s}»`,go:"Сделал(а) · +15 XP",done:"Задание дня выполнено. Возвращайтесь завтра!",open:"Открыть ступень"},min:m=>`≈ ${m} мин`,li:"В LinkedIn",nextH:"Куда расти дальше",nextP:"Официальные бесплатные курсы Anthropic: Claude Code, API, MCP, агенты. На английском, со значками для LinkedIn.",nextA:"Claude Academy →",inst:{t:"Установите приложение",s:"Иконка на экране, работает без интернета",b:"Установить",p:"Установить на телефон",done:"Приложение установлено!",h:"Как установить",ios:["Нажмите кнопку «Поделиться» внизу Safari (квадрат со стрелкой вверх)","Прокрутите и выберите «На экран „Домой“»","Нажмите «Добавить» — иконка Skill Hill появится на экране"],iosNote:"На iPhone установка работает только через Safari.",gen:["Откройте меню браузера (⋮ или ⋯)","Выберите «Установить приложение» или «Добавить на главный экран»","Подтвердите — иконка появится на экране"],ok:"Понятно"},hello:n=>n?`Привет, ${n}!`:"Освой Claude ступень за ступенью",
  lead:"Теория, пример, практика, ошибки и тест на каждой ступени.",of:t=>`из ${t} ступеней`,next:"Следующая ступень",go:"Подняться",
  rec:"Рекомендуем начать отсюда",topDone:"Уровень пройден. Вы на вершине!",soonTxt:"Продвинутые запросы, агенты, автоматизация бизнеса, работа с API и свои инструменты.",soon:"скоро",
  forYou:"для вас",pace:(n,d)=>`Ваш темп: ${n} · финиш примерно ${d}`,paceN:{5:"1 ступень за 2 дня",15:"1 ступень в день",30:"2 ступени в день"},
@@ -269,7 +277,7 @@ ru:{nav:["Путь","Промпты","Конструктор","Профиль"],
   minsL:[[5,"5 минут","лёгкий темп"],[15,"15 минут","оптимально"],[30,"30 минут","быстрый подъём"]]},
  cert:{t:"СЕРТИФИКАТ",s:"Этот сертификат подтверждает, что",c:(n,l)=>`успешно прошёл(ла) уровень ${n} «${l}» курса Claude Skill Hill`,d:(q,t)=>`${t} ступеней · тесты: ${q} из ${t} с первой попытки`,sk:"ОСВОЕННЫЕ НАВЫКИ",disc:"Независимый учебный курс. Не является официальной сертификацией Anthropic.",nm:"Участник",date:"Дата",sign:"Команда Skill Hill",sample:"ОБРАЗЕЦ",steps:"УРОВЕНЬ"},
  lvlUp:r=>`Новое звание: ${r}!`,badgeGot:b=>`Награда: ${b}`},
-en:{nav:["Path","Prompts","Builder","Profile"],inst:{t:"Install the app",s:"Home-screen icon, works offline",b:"Install",p:"Install on your phone",done:"App installed!",h:"How to install",ios:["Tap the Share button at the bottom of Safari (square with an up arrow)","Scroll and choose “Add to Home Screen”","Tap “Add” and the Skill Hill icon appears on your screen"],iosNote:"On iPhone, installing only works from Safari.",gen:["Open the browser menu (⋮ or ⋯)","Choose “Install app” or “Add to Home screen”","Confirm and the icon appears on your screen"],ok:"Got it"},hello:n=>n?`Hi, ${n}!`:"Master Claude step by step",
+en:{nav:["Path","Prompts","Builder","Profile"],day:{h:"Task of the day",from:s=>`From the step “${s}”`,go:"Done · +15 XP",done:"Today’s task is done. Come back tomorrow!",open:"Open step"},min:m=>`≈ ${m} min`,li:"Add to LinkedIn",nextH:"Where to go next",nextP:"Anthropic’s official free courses: Claude Code, the API, MCP, agents. In English, with LinkedIn badges.",nextA:"Claude Academy →",inst:{t:"Install the app",s:"Home-screen icon, works offline",b:"Install",p:"Install on your phone",done:"App installed!",h:"How to install",ios:["Tap the Share button at the bottom of Safari (square with an up arrow)","Scroll and choose “Add to Home Screen”","Tap “Add” and the Skill Hill icon appears on your screen"],iosNote:"On iPhone, installing only works from Safari.",gen:["Open the browser menu (⋮ or ⋯)","Choose “Install app” or “Add to Home screen”","Confirm and the icon appears on your screen"],ok:"Got it"},hello:n=>n?`Hi, ${n}!`:"Master Claude step by step",
  lead:"Theory, example, practice, mistakes and a quiz on every step.",of:t=>`of ${t} steps`,next:"Next step",go:"Climb",
  rec:"We recommend starting here",topDone:"Level complete. You're at the summit!",soonTxt:"Advanced prompting, agents, business automation, the API and your own tools.",soon:"soon",
  forYou:"for you",pace:(n,d)=>`Your pace: ${n} · finish around ${d}`,paceN:{5:"1 step every 2 days",15:"1 step a day",30:"2 steps a day"},
@@ -331,6 +339,20 @@ function nextIndex(Lv){const p=S.profile;let order=Lv.steps.map((_,i)=>i);
  return order.find(i=>!S.done.includes(sid(Lv.id,i)))}
 function finishDate(left){const per={5:.5,15:1,30:2}[(S.profile||{}).mins||15];const d=new Date();d.setDate(d.getDate()+Math.ceil(left/per));
  return d.toLocaleDateString(S.lang==="en"?"en-GB":"ru-RU",{day:"numeric",month:"long"})}
+const stepMin=x=>Math.max(8,Math.round((x.theory.length+x.good.length)/90)+x.tasks.length*4);
+function dayPick(){const all=[];L().forEach((Lv,li)=>Lv.steps.forEach((x,i)=>all.push({Lv,li,x,i})));
+ const done=all.filter(o=>S.done.includes(sid(o.Lv.id,o.i))),pool=done.length?done:all.filter(o=>o.li===0).slice(0,7);
+ let hsh=0;for(const ch of today()+(S.profile&&S.profile.goal||""))hsh=(hsh*31+ch.charCodeAt(0))>>>0;return pool[hsh%pool.length]}
+function renderDaily(){const tt=t(),dd=tt.day,o=dayPick(),box=$("#daily");if(!o){box.hidden=true;return}
+ const ok=(S.daily||"")===today();box.hidden=false;box.className="card daily"+(ok?" ok":"");
+ box.innerHTML=`<div class="hd"><span class="eyebrow">${dd.h}</span><span class="time">⏱ ${tt.min(Math.max(5,o.x.tasks.length*3))}</span></div>
+ <h3>${esc(o.x.tasks[0])}</h3><p style="margin:0;color:var(--muted);font-size:14px">${esc(dd.from(o.x.t))}</p>
+ <div class="prompt">${esc(o.x.prompt)}</div>
+ <div class="row2"><button class="copy" id="dCopy" style="margin:0">${tt.copy}</button><button class="copy" id="dOpen" style="margin:0">${dd.open}</button></div>
+ ${ok?`<p style="margin:0;font-weight:600">${dd.done}</p>`:`<div><button class="btn ok" id="dDone">${dd.go}</button></div>`}`;
+ copyBtn($("#dCopy"),o.x.prompt,box.querySelector(".prompt"));
+ $("#dOpen").onclick=()=>{lv=o.li;renderPath();openStep(o.i,"practice")};
+ if(!ok)$("#dDone").onclick=()=>{S.daily=today();addXP(15);renderDaily()}}
 function renderPath(){
  const tt=t(),Ls=L(),Lv=Ls[lv],p=S.profile;
  $("#hello").textContent=tt.hello(p&&p.name);$("#lead").textContent=tt.lead;
@@ -339,13 +361,13 @@ function renderPath(){
  const tot=Lv.steps.length||30,n=Lv.steps.filter((_,i)=>S.done.includes(sid(Lv.id,i))).length;
  $("#cnt").textContent=n;$("#ofTot").textContent=tt.of(tot);$("#rank").textContent=tt.ranks[rankIdx()];
  const f=n/tot;path.style.strokeDashoffset=LEN*(1-f);const pt=path.getPointAtLength(LEN*f);$("#me").setAttribute("cx",pt.x);$("#me").setAttribute("cy",pt.y);
- const m=$("#list");m.innerHTML="";
+ renderDaily();const m=$("#list");m.innerHTML="";
  if(Lv.soon){m.innerHTML=`<div class="card soon"><h3>${esc(Lv.name)}</h3><p style="margin:0">${esc(Lv.sub)}. ${tt.soonTxt}</p></div>`;$("#nextBox").hidden=true;return}
  const rec=p&&Lv.id==="base"?GOAL_STEPS[p.goal]||[]:[];
  Lv.sections.forEach((s,si)=>{
   const idx=Lv.steps.map((x,i)=>[x,i]).filter(([x])=>x.s===si),c=idx.filter(([,i])=>S.done.includes(sid(Lv.id,i))).length;
   const sec=document.createElement("section");sec.className="sec";
-  sec.innerHTML=`<h3><span>${esc(s.name)}</span><em>${c}/${idx.length}</em></h3><p class="d">${esc(s.d)}</p><div class="stairs"></div>`;
+  sec.innerHTML=`<h3><span>${esc(s.name)}</span><em>${c}/${idx.length} · ${tt.min(idx.reduce((a,[x])=>a+stepMin(x),0))}</em></h3><p class="d">${esc(s.d)}</p><div class="stairs"></div>`;
   const box=sec.querySelector(".stairs");
   idx.forEach(([x,i])=>{const d=S.done.includes(sid(Lv.id,i)),b=document.createElement("button");b.className="st"+(d?" done":"");
    const h=Math.ceil((i+1)/Lv.steps.length*5);
@@ -353,7 +375,7 @@ function renderPath(){
    b.onclick=()=>openStep(i);box.appendChild(b)});
   m.appendChild(sec)});
  const nx=nextIndex(Lv);$("#nextBox").hidden=false;$("#nextLbl").textContent=n===0&&p&&p.lvl==="pro"?tt.rec:tt.next;
- if(nx===undefined){$("#nextT").textContent=tt.topDone;$("#nextB").hidden=true;$("#pace").textContent=""}
+ if(nx===undefined){$("#nextT").textContent=tt.topDone;$("#pace").textContent="";const nl=L()[lv+1];$("#nextB").hidden=!nl;if(nl){$("#nextB").textContent=(S.lang==="en"?"Level ":"Уровень ")+nl.n+" →";$("#nextB").onclick=()=>{lv++;renderPath();scrollTo(0,0)}}}
  else{$("#nextT").textContent=`${nx+1}. ${Lv.steps[nx].t}`;$("#nextB").hidden=false;$("#nextB").textContent=tt.go;$("#nextB").onclick=()=>openStep(nx);
   $("#pace").textContent=tt.pace(tt.paceN[(p||{}).mins||15],finishDate(tot-n))}
 }
@@ -368,7 +390,7 @@ const TK=["theory","example","practice","mistakes","quiz","more"];
 function openStep(i,tab="theory"){
  const tt=t(),Lv=L()[lv],x=Lv.steps[i],k=sid(Lv.id,i),d=S.done.includes(k);
  const s=sheet(`<div class="hd"><span class="eyebrow">${esc(tt.stepOf(i+1,Lv.steps.length,Lv.sections[x.s].name))}</span><button class="x" aria-label="×">×</button></div>
- <h3>${esc(x.t)}</h3><div class="tabs" role="tablist">${TK.map((q,j)=>`<button class="tab" role="tab" data-k="${q}">${tt.tabs[j]}</button>`).join("")}</div>
+ <h3>${esc(x.t)}</h3><div class="time" style="margin:-6px 0 10px">⏱ ${tt.min(stepMin(x))}</div><div class="tabs" role="tablist">${TK.map((q,j)=>`<button class="tab" role="tab" data-k="${q}">${tt.tabs[j]}</button>`).join("")}</div>
  <div class="pane" id="pane"></div>
  <div class="actions">${d?`<button class="btn ghost" data-a="undo">${tt.undo}</button>`:`<button class="btn ok" data-a="done">${tt.doneB}</button>`}${i<Lv.steps.length-1?`<button class="btn ghost" data-a="next">${tt.nextS(i+2)}</button>`:""}</div>`);
  const pane=s.querySelector("#pane");
@@ -431,6 +453,10 @@ function renderMe(){const tt=t(),Ls=L(),d=S.done.filter(x=>x.startsWith("base:")
  const Lv=Ls[certLv],dn=lvDone(Lv),tot=Lv.steps.length,ok=tot>0&&dn>=tot;
  drawCert(ok,Lv);$("#certNote").textContent=ok?tt.certOk:tt.certLock(tot-dn,Lv.name);$("#certDl").textContent=tt.dl;$("#certSh").textContent=tt.share;
  $("#certDl").disabled=$("#certSh").disabled=!ok;$("#certSh").hidden=!navigator.share;
+ const cd=S.certDates&&S.certDates[Lv.id]?new Date(S.certDates[Lv.id]):new Date();
+ $("#certLi").textContent=tt.li;$("#certLi").hidden=!ok;
+ $("#certLi").href="https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name="+encodeURIComponent("Claude Skill Hill — "+(S.lang==="en"?"Level ":"Уровень ")+Lv.n+": "+Lv.name)+"&organizationName="+encodeURIComponent("Claude Skill Hill")+"&issueYear="+cd.getFullYear()+"&issueMonth="+(cd.getMonth()+1)+"&certUrl="+encodeURIComponent("https://digitalcreatorhub.github.io/Claude-skill-hill/");
+ $("#nextH").textContent=tt.nextH;$("#nextP").textContent=tt.nextP;$("#nextA").textContent=tt.nextA;
  $("#upH").textContent=tt.upH;const U=(window.UPDATES||[]).slice(0,6);
  $("#upList").innerHTML=U.map(u=>`<div><div style="font-size:13px;color:var(--muted)">${new Date(u.date).toLocaleDateString(S.lang==="en"?"en-GB":"ru-RU",{day:"numeric",month:"long",year:"numeric"})}</div><div>${esc(u[S.lang]||u.ru)}</div></div>`).join("");
  $("#langL").textContent=tt.langL;$$("#langSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===S.lang));
