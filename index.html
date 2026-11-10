@@ -247,11 +247,11 @@ ru:{nav:["Путь","Промпты","Конструктор","Профиль"],
  disc:"Claude Skill Hill — независимый бесплатный учебный курс. Claude — продукт компании Anthropic. Прогресс хранится только на этом устройстве.",
  ranks:["Подножие","Тропа","Склон","Перевал","Вершина"],
  badges:[["1","Первый шаг","1 ступень"],["7","Неделя","7 ступеней"],["15","Полпути","15 ступеней"],["30","Вершина","30 ступеней"],["3🔥","Огонёк","3 дня подряд"],["7🔥","Пламя","7 дней подряд"],["10✓","Знаток","10 тестов"],["✎","Мастер запроса","Конструктор"]],
- ob:{h:"Настроим ваш путь",p:"Три вопроса — и курс подстроится под вас.",name:"Как вас зовут? (для сертификата)",namePh:"Имя",goal:"Зачем вам Claude?",lvl:"Ваш опыт",mins:"Сколько минут в день?",start:"Начать подъём",skip:"Пропустить",
+ ob:{h:"Настроим ваш путь",p:"Три вопроса — и курс подстроится под вас.",name:"Имя и фамилия (для сертификата)",namePh:"Анна Петрова",goal:"Зачем вам Claude?",lvl:"Ваш опыт",mins:"Сколько минут в день?",start:"Начать подъём",skip:"Пропустить",
   goals:[["work","Работа","письма, документы, отчёты"],["biz","Бизнес","клиенты, маркетинг, продажи"],["study","Учёба","разобраться, запомнить, исследовать"],["life","Для себя","быт, планы, идеи"]],
   lvls:[["new","Новичок","ещё не пользовался"],["some","Пробовал","иногда задаю вопросы"],["pro","Уверенно","пользуюсь регулярно"]],
   minsL:[[5,"5 минут","лёгкий темп"],[15,"15 минут","оптимально"],[30,"30 минут","быстрый подъём"]]},
- cert:{t:"СЕРТИФИКАТ",s:"Этот сертификат подтверждает, что",c:"прошёл(ла) уровень «Основы» курса Claude Skill Hill",d:"30 ступеней · теория · практика · тесты",nm:"Участник",date:"Дата",sign:"Команда Skill Hill",sample:"ОБРАЗЕЦ",steps:"СТУПЕНЕЙ"},
+ cert:{t:"СЕРТИФИКАТ",s:"Этот сертификат подтверждает, что",c:"успешно прошёл(ла) уровень 1 «Основы» курса Claude Skill Hill",d:q=>`30 ступеней · тесты: ${q} из 30 с первой попытки`,sk:"ОСВОЕННЫЕ НАВЫКИ",skills:["Промпт-инжиниринг","Файлы и исследования","Документы, таблицы, сайты","Автоматизация и агенты","Итоговый проект"],disc:"Независимый учебный курс. Не является официальной сертификацией Anthropic.",nm:"Участник",date:"Дата",sign:"Команда Skill Hill",sample:"ОБРАЗЕЦ",steps:"СТУПЕНЕЙ"},
  lvlUp:r=>`Новое звание: ${r}!`,badgeGot:b=>`Награда: ${b}`},
 en:{nav:["Path","Prompts","Builder","Profile"],hello:n=>n?`Hi, ${n}!`:"Master Claude step by step",
  lead:"Theory, example, practice, mistakes and a quiz on every step.",of:t=>`of ${t} steps`,next:"Next step",go:"Climb",
@@ -270,11 +270,11 @@ en:{nav:["Path","Prompts","Builder","Profile"],hello:n=>n?`Hi, ${n}!`:"Master Cl
  disc:"Claude Skill Hill is an independent free course. Claude is a product of Anthropic. Progress is stored only on this device.",
  ranks:["Foothill","Trail","Slope","Pass","Summit"],
  badges:[["1","First step","1 step"],["7","One week","7 steps"],["15","Halfway","15 steps"],["30","Summit","30 steps"],["3🔥","Spark","3-day streak"],["7🔥","Flame","7-day streak"],["10✓","Expert","10 quizzes"],["✎","Prompt master","Builder"]],
- ob:{h:"Let's set up your path",p:"Three questions and the course adapts to you.",name:"Your name (for the certificate)",namePh:"Name",goal:"Why do you need Claude?",lvl:"Your experience",mins:"Minutes per day?",start:"Start climbing",skip:"Skip",
+ ob:{h:"Let's set up your path",p:"Three questions and the course adapts to you.",name:"Full name (for the certificate)",namePh:"Anna Peterson",goal:"Why do you need Claude?",lvl:"Your experience",mins:"Minutes per day?",start:"Start climbing",skip:"Skip",
   goals:[["work","Work","emails, documents, reports"],["biz","Business","clients, marketing, sales"],["study","Study","understand, remember, research"],["life","Personal","home, plans, ideas"]],
   lvls:[["new","Beginner","never used it"],["some","Tried it","ask questions sometimes"],["pro","Confident","use it regularly"]],
   minsL:[[5,"5 minutes","easy pace"],[15,"15 minutes","optimal"],[30,"30 minutes","fast climb"]]},
- cert:{t:"CERTIFICATE",s:"This certifies that",c:"has completed the Basics level of Claude Skill Hill",d:"30 steps · theory · practice · quizzes",nm:"Participant",date:"Date",sign:"Skill Hill Team",sample:"SAMPLE",steps:"STEPS"},
+ cert:{t:"CERTIFICATE",s:"This certifies that",c:"has successfully completed Level 1 “Basics” of Claude Skill Hill",d:q=>`30 steps · quizzes: ${q} of 30 passed on first try`,sk:"SKILLS ACQUIRED",skills:["Prompt engineering","Files & research","Docs, sheets & sites","Automation & agents","Capstone project"],disc:"Independent course. Not an official Anthropic certification.",nm:"Participant",date:"Date",sign:"Skill Hill Team",sample:"SAMPLE",steps:"STEPS"},
  lvlUp:r=>`New rank: ${r}!`,badgeGot:b=>`Badge earned: ${b}`}
 };
 /* steps recommended per goal (0-based) */
@@ -425,9 +425,6 @@ async function drawCert(ok){const c=$("#cert"),x=c.getContext("2d"),tt=t().cert,
  // hill silhouette
  x.beginPath();x.moveTo(0,H);x.lineTo(0,700);x.bezierCurveTo(260,690,420,600,600,520);x.bezierCurveTo(760,450,900,360,1200,330);x.lineTo(W,H);x.closePath();
  const hg=x.createLinearGradient(0,330,0,H);hg.addColorStop(0,"rgba(46,71,245,.35)");hg.addColorStop(1,"rgba(46,71,245,.05)");x.fillStyle=hg;x.fill();
- // gold staircase climbing the hill
- x.beginPath();let sx=70,sy=705;x.moveTo(sx,sy);for(let i=0;i<6;i++){sy-=28;x.lineTo(sx,sy);sx+=40;x.lineTo(sx,sy)}
- x.strokeStyle="rgba(242,184,61,.28)";x.lineWidth=4;x.lineJoin="round";x.stroke();
  // borders
  x.strokeStyle=GOLD;x.lineWidth=3;x.strokeRect(28,28,W-56,H-56);x.strokeStyle="rgba(242,184,61,.45)";x.lineWidth=1.5;x.strokeRect(42,42,W-84,H-84);
  [[28,28],[W-28,28],[28,H-28],[W-28,H-28]].forEach(([a,b])=>{x.fillStyle=GOLD;x.beginPath();x.moveTo(a,b-10);x.lineTo(a+10,b);x.lineTo(a,b+10);x.lineTo(a-10,b);x.closePath();x.fill()});
@@ -436,17 +433,22 @@ async function drawCert(ok){const c=$("#cert"),x=c.getContext("2d"),tt=t().cert,
  x.fillStyle=GOLD;x.font="500 20px Unbounded, sans-serif";x.letterSpacing="8px";x.fillText("CLAUDE SKILL HILL  ·  "+tt.t,W/2,108);x.letterSpacing="0px";
  x.strokeStyle="rgba(242,184,61,.6)";x.lineWidth=1.5;x.beginPath();x.moveTo(W/2-250,128);x.lineTo(W/2+250,128);x.stroke();
  // headline
- const hl=x.createLinearGradient(0,150,0,230);hl.addColorStop(0,"#FFFFFF");hl.addColorStop(1,"#C9D0FF");x.fillStyle=hl;
- x.font="700 62px Unbounded, sans-serif";x.fillText("You've mastered it!",W/2,215);
- x.fillStyle="#AEB6E0";x.font="400 24px 'Golos Text', sans-serif";x.fillText(tt.s,W/2,275);
+ x.fillStyle=GOLD;x.font="46px 'Great Vibes', cursive";x.fillText("You've mastered it!",W/2,180);
+ x.fillStyle="#AEB6E0";x.font="400 22px 'Golos Text', sans-serif";x.fillText(tt.s,W/2,228);
  // name
- let fs=104;const nf=/[а-яё]/i.test(name)?"'Marck Script'":"'Great Vibes'";x.font=fs+"px "+nf+", cursive";while(x.measureText(name).width>820&&fs>48){fs-=4;x.font=fs+"px "+nf+", cursive"}
- const ng=x.createLinearGradient(0,300,0,390);ng.addColorStop(0,"#FFE29A");ng.addColorStop(1,GOLD2);x.fillStyle=ng;x.fillText(name,W/2,375);
- x.strokeStyle="rgba(242,184,61,.7)";x.lineWidth=1.5;x.beginPath();x.moveTo(W/2-300,400);x.lineTo(W/2+300,400);x.stroke();
- x.fillStyle="#FFFFFF";x.font="600 26px 'Golos Text', sans-serif";x.fillText(tt.c,W/2,452);
- x.fillStyle="#AEB6E0";x.font="400 21px 'Golos Text', sans-serif";x.fillText(tt.d,W/2,490);
+ let fs=92;const nf=/[а-яё]/i.test(name)?"'Marck Script'":"'Great Vibes'";x.font=fs+"px "+nf+", cursive";while(x.measureText(name).width>840&&fs>44){fs-=4;x.font=fs+"px "+nf+", cursive"}
+ const ng=x.createLinearGradient(0,240,0,320);ng.addColorStop(0,"#FFFFFF");ng.addColorStop(1,"#DCE1FF");x.fillStyle=ng;x.fillText(name,W/2,312);
+ x.strokeStyle="rgba(242,184,61,.7)";x.lineWidth=1.5;x.beginPath();x.moveTo(W/2-320,334);x.lineTo(W/2+320,334);x.stroke();
+ x.fillStyle="#FFFFFF";x.font="600 25px 'Golos Text', sans-serif";x.fillText(tt.c,W/2,380);
+ x.fillStyle="#AEB6E0";x.font="400 20px 'Golos Text', sans-serif";x.fillText(tt.d(Math.min(30,S.quiz.filter(k=>k.startsWith("base:")).length)),W/2,414);
+ // skills
+ x.fillStyle=GOLD;x.font="500 13px Unbounded, sans-serif";x.letterSpacing="4px";x.fillText(tt.sk,W/2,462);x.letterSpacing="0px";
+ x.font="600 17px 'Golos Text', sans-serif";const pads=30,gap=12,rows=[tt.skills.slice(0,3),tt.skills.slice(3)];
+ rows.forEach((row,ri)=>{const ws=row.map(s=>x.measureText(s).width+pads);let px=(W-(ws.reduce((p,c)=>p+c,0)+gap*(ws.length-1)))/2;const y=478+ri*46,hh=36;
+  row.forEach((s,i)=>{const w=ws[i];x.beginPath();x.roundRect(px,y,w,hh,18);x.fillStyle="rgba(242,184,61,.12)";x.fill();x.strokeStyle="rgba(242,184,61,.55)";x.lineWidth=1.2;x.stroke();
+   x.fillStyle="#FFFFFF";x.fillText(s,px+w/2,y+24);px+=w+gap})});
  // seal
- const cx=W/2,cy=650;x.save();x.translate(cx,cy);
+ const cx=W/2,cy=668;x.save();x.translate(cx,cy);
  x.fillStyle=GOLD;x.beginPath();for(let i=0;i<48;i++){const r=i%2?74:82,a=i*Math.PI/24;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.closePath();x.fill();
  const sg=x.createRadialGradient(-20,-20,10,0,0,68);sg.addColorStop(0,"#FFE29A");sg.addColorStop(1,GOLD2);x.fillStyle=sg;x.beginPath();x.arc(0,0,66,0,7);x.fill();
  x.strokeStyle="rgba(8,11,36,.55)";x.lineWidth=2;x.beginPath();x.arc(0,0,56,0,7);x.stroke();
@@ -454,16 +456,16 @@ async function drawCert(ok){const c=$("#cert"),x=c.getContext("2d"),tt=t().cert,
  x.beginPath();x.moveTo(-26,-22);x.lineTo(-13,-22);x.lineTo(-13,-32);x.lineTo(0,-32);x.lineTo(0,-42);x.lineTo(13,-42);x.strokeStyle="#0B1030";x.lineWidth=3;x.stroke();
  x.restore();
  // date (left)
- x.fillStyle="#FFFFFF";x.font="600 24px 'Golos Text', sans-serif";x.fillText(dt,250,660);
- x.strokeStyle="rgba(242,184,61,.6)";x.lineWidth=1.5;x.beginPath();x.moveTo(120,676);x.lineTo(380,676);x.stroke();
- x.fillStyle="#AEB6E0";x.font="400 18px 'Golos Text', sans-serif";x.fillText(tt.date,250,702);
+ x.fillStyle="#FFFFFF";x.font="600 24px 'Golos Text', sans-serif";x.fillText(dt,250,676);
+ x.strokeStyle="rgba(242,184,61,.6)";x.lineWidth=1.5;x.beginPath();x.moveTo(120,692);x.lineTo(380,692);x.stroke();
+ x.fillStyle="#AEB6E0";x.font="400 18px 'Golos Text', sans-serif";x.fillText(tt.date,250,718);
  // signature (right)
- x.save();x.translate(950,652);x.rotate(-.06);x.fillStyle="#FFFFFF";x.font="56px 'Great Vibes', cursive";x.fillText("Claude Skill Hill",0,0);
+ x.save();x.translate(950,668);x.rotate(-.06);x.fillStyle="#FFFFFF";x.font="56px 'Great Vibes', cursive";x.fillText("Claude Skill Hill",0,0);
  x.strokeStyle="#FFFFFF";x.lineWidth=2;x.beginPath();x.moveTo(-150,14);x.bezierCurveTo(-60,30,60,0,170,10);x.stroke();x.restore();
- x.strokeStyle="rgba(242,184,61,.6)";x.lineWidth=1.5;x.beginPath();x.moveTo(820,676);x.lineTo(1080,676);x.stroke();
- x.fillStyle="#AEB6E0";x.font="400 18px 'Golos Text', sans-serif";x.fillText(tt.sign,950,702);
+ x.strokeStyle="rgba(242,184,61,.6)";x.lineWidth=1.5;x.beginPath();x.moveTo(820,692);x.lineTo(1080,692);x.stroke();
+ x.fillStyle="#AEB6E0";x.font="400 18px 'Golos Text', sans-serif";x.fillText(tt.sign,950,718);
  // number
- x.fillStyle="rgba(174,182,224,.7)";x.font="400 15px 'JetBrains Mono', monospace";x.fillText("№ "+num+"  ·  digitalcreatorhub.github.io/Claude-skill-hill",W/2,782);
+ x.fillStyle="rgba(174,182,224,.7)";x.font="400 15px 'JetBrains Mono', monospace";x.fillText("№ "+num+"  ·  digitalcreatorhub.github.io/Claude-skill-hill",W/2,774);x.fillStyle="rgba(174,182,224,.55)";x.font="400 14px 'Golos Text', sans-serif";x.fillText(tt.disc,W/2,794);
  if(!ok){x.save();x.translate(W/2,H/2);x.rotate(-.35);x.fillStyle="rgba(255,255,255,.13)";x.font="700 150px Unbounded, sans-serif";x.fillText(tt.sample,0,50);x.restore()}}
 function certBlob(){return new Promise(r=>$("#cert").toBlob(r,"image/png"))}
 $("#certDl").onclick=async()=>{const b=await certBlob(),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="claude-skill-hill-certificate.png";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)};
