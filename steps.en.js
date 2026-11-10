@@ -1,7 +1,8 @@
 // English course content. Keep step order and level ids identical to steps.js so progress carries over.
 window.LEVELS_EN = [
 {
- id: "base", name: "Basics", sub: "30 steps from your first question to your own project",
+ id: "base", n: 1, skills: ["Prompt engineering","Files & research","Docs, sheets & sites","Automation & agents","Capstone project"],
+ name: "Basics", sub: "30 steps from your first question to your own project",
  sections: [
   {name: "Conversation", d: "How to talk to Claude to get precise answers"},
   {name: "Materials", d: "Files, search, projects, memory and connected apps"},
@@ -281,9 +282,5 @@ window.LEVELS_EN = [
   quiz:["What should you do after the course?",["Practice every day","Forget it","Start over"],0],
   more:"Tell your friends about Claude Skill Hill and climb together."}
  ]
-},
-{
- id: "deep", name: "Deep dive", sub: "The next 30 steps — coming soon", soon: true,
- sections: [], steps: []
 }
 ];

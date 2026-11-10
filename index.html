@@ -199,11 +199,12 @@ canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);di
     <div class="stats" id="stats"></div>
     <div><div class="eyebrow" id="badH" style="margin-bottom:8px"></div><div class="badges" id="badges"></div></div>
     <div class="card" style="display:flex;flex-direction:column;gap:12px">
-      <div class="eyebrow" id="certH"></div>
+      <div class="eyebrow" id="certH"></div><div class="levels" id="certLv"></div>
       <canvas id="cert" width="1200" height="840"></canvas>
       <p id="certNote" style="margin:0;color:var(--muted);font-size:14px"></p>
       <div class="row2"><button class="btn" id="certDl"></button><button class="btn ghost" id="certSh"></button></div>
     </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow" id="upH"></div><div id="upList" style="display:flex;flex-direction:column;gap:10px"></div></div>
     <div class="card" style="display:flex;flex-direction:column;gap:14px">
       <div class="row2" style="justify-content:space-between"><b id="langL"></b><div class="seg" id="langSeg"><button data-l="ru">RU</button><button data-l="en">EN</button></div></div>
       <div class="row2"><button class="btn ghost" id="redo"></button><button class="btn ghost" id="reset"></button></div>
@@ -224,6 +225,11 @@ canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);di
 
 <script src="steps.js"></script>
 <script src="steps.en.js"></script>
+<script src="level2.js"></script>
+<script src="level3.js"></script>
+<script src="level4.js"></script>
+<script src="level5.js"></script>
+<script src="updates.js"></script>
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -242,7 +248,7 @@ ru:{nav:["Путь","Промпты","Конструктор","Профиль"],
  fmt:["Свободный","Список","Таблица","Пошаговый план","Короткий абзац","Письмо"],tone:["Нейтральный","Дружелюбный","Деловой","Простыми словами","Строгий и критичный"],
  bRes:"Ваш запрос",bEmpty:"Начните заполнять поля сверху — запрос появится здесь.",
  meH:"Профиль",meP:"Ваш прогресс, награды и сертификат.",st:["XP","дней подряд","ступеней"],badH:"Награды",certH:"Сертификат",
- certLock:n=>`Пройдите все ступени уровня «Основы», чтобы получить сертификат. Осталось: ${n}.`,certOk:"Сертификат готов. Сохраните его или поделитесь.",dl:"Сохранить",share:"Поделиться",
+ certLock:(n,l)=>`Пройдите все ступени уровня «${l}», чтобы получить сертификат. Осталось: ${n}.`,upH:"Что нового в курсе",updTag:"обновлено",newTag:"новое",certPick:"Сертификат за уровень",certOk:"Сертификат готов. Сохраните его или поделитесь.",dl:"Сохранить",share:"Поделиться",
  langL:"Язык",redo:"Изменить цель и темп",reset:"Сбросить прогресс",resetSure:"Нажмите ещё раз для сброса",
  disc:"Claude Skill Hill — независимый бесплатный учебный курс. Claude — продукт компании Anthropic. Прогресс хранится только на этом устройстве.",
  ranks:["Подножие","Тропа","Склон","Перевал","Вершина"],
@@ -251,7 +257,7 @@ ru:{nav:["Путь","Промпты","Конструктор","Профиль"],
   goals:[["work","Работа","письма, документы, отчёты"],["biz","Бизнес","клиенты, маркетинг, продажи"],["study","Учёба","разобраться, запомнить, исследовать"],["life","Для себя","быт, планы, идеи"]],
   lvls:[["new","Новичок","ещё не пользовался"],["some","Пробовал","иногда задаю вопросы"],["pro","Уверенно","пользуюсь регулярно"]],
   minsL:[[5,"5 минут","лёгкий темп"],[15,"15 минут","оптимально"],[30,"30 минут","быстрый подъём"]]},
- cert:{t:"СЕРТИФИКАТ",s:"Этот сертификат подтверждает, что",c:"успешно прошёл(ла) уровень 1 «Основы» курса Claude Skill Hill",d:q=>`30 ступеней · тесты: ${q} из 30 с первой попытки`,sk:"ОСВОЕННЫЕ НАВЫКИ",skills:["Промпт-инжиниринг","Файлы и исследования","Документы, таблицы, сайты","Автоматизация и агенты","Итоговый проект"],disc:"Независимый учебный курс. Не является официальной сертификацией Anthropic.",nm:"Участник",date:"Дата",sign:"Команда Skill Hill",sample:"ОБРАЗЕЦ",steps:"СТУПЕНЕЙ"},
+ cert:{t:"СЕРТИФИКАТ",s:"Этот сертификат подтверждает, что",c:(n,l)=>`успешно прошёл(ла) уровень ${n} «${l}» курса Claude Skill Hill`,d:(q,t)=>`${t} ступеней · тесты: ${q} из ${t} с первой попытки`,sk:"ОСВОЕННЫЕ НАВЫКИ",disc:"Независимый учебный курс. Не является официальной сертификацией Anthropic.",nm:"Участник",date:"Дата",sign:"Команда Skill Hill",sample:"ОБРАЗЕЦ",steps:"УРОВЕНЬ"},
  lvlUp:r=>`Новое звание: ${r}!`,badgeGot:b=>`Награда: ${b}`},
 en:{nav:["Path","Prompts","Builder","Profile"],hello:n=>n?`Hi, ${n}!`:"Master Claude step by step",
  lead:"Theory, example, practice, mistakes and a quiz on every step.",of:t=>`of ${t} steps`,next:"Next step",go:"Climb",
@@ -265,7 +271,7 @@ en:{nav:["Path","Prompts","Builder","Profile"],hello:n=>n?`Hi, ${n}!`:"Master Cl
  fmt:["Free form","List","Table","Step-by-step plan","Short paragraph","Email"],tone:["Neutral","Friendly","Business","Plain language","Strict and critical"],
  bRes:"Your prompt",bEmpty:"Start filling in the fields above — your prompt will appear here.",
  meH:"Profile",meP:"Your progress, badges and certificate.",st:["XP","day streak","steps"],badH:"Badges",certH:"Certificate",
- certLock:n=>`Complete every step of the Basics level to earn your certificate. Remaining: ${n}.`,certOk:"Your certificate is ready. Save it or share it.",dl:"Save",share:"Share",
+ certLock:(n,l)=>`Complete every step of the “${l}” level to earn its certificate. Remaining: ${n}.`,upH:"What's new in the course",updTag:"updated",newTag:"new",certPick:"Certificate for level",certOk:"Your certificate is ready. Save it or share it.",dl:"Save",share:"Share",
  langL:"Language",redo:"Change goal and pace",reset:"Reset progress",resetSure:"Tap again to reset",
  disc:"Claude Skill Hill is an independent free course. Claude is a product of Anthropic. Progress is stored only on this device.",
  ranks:["Foothill","Trail","Slope","Pass","Summit"],
@@ -274,7 +280,7 @@ en:{nav:["Path","Prompts","Builder","Profile"],hello:n=>n?`Hi, ${n}!`:"Master Cl
   goals:[["work","Work","emails, documents, reports"],["biz","Business","clients, marketing, sales"],["study","Study","understand, remember, research"],["life","Personal","home, plans, ideas"]],
   lvls:[["new","Beginner","never used it"],["some","Tried it","ask questions sometimes"],["pro","Confident","use it regularly"]],
   minsL:[[5,"5 minutes","easy pace"],[15,"15 minutes","optimal"],[30,"30 minutes","fast climb"]]},
- cert:{t:"CERTIFICATE",s:"This certifies that",c:"has successfully completed Level 1 “Basics” of Claude Skill Hill",d:q=>`30 steps · quizzes: ${q} of 30 passed on first try`,sk:"SKILLS ACQUIRED",skills:["Prompt engineering","Files & research","Docs, sheets & sites","Automation & agents","Capstone project"],disc:"Independent course. Not an official Anthropic certification.",nm:"Participant",date:"Date",sign:"Skill Hill Team",sample:"SAMPLE",steps:"STEPS"},
+ cert:{t:"CERTIFICATE",s:"This certifies that",c:(n,l)=>`has successfully completed Level ${n} “${l}” of Claude Skill Hill`,d:(q,t)=>`${t} steps · quizzes: ${q} of ${t} passed on first try`,sk:"SKILLS ACQUIRED",disc:"Independent course. Not an official Anthropic certification.",nm:"Participant",date:"Date",sign:"Skill Hill Team",sample:"SAMPLE",steps:"LEVEL"},
  lvlUp:r=>`New rank: ${r}!`,badgeGot:b=>`Badge earned: ${b}`}
 };
 /* steps recommended per goal (0-based) */
@@ -318,14 +324,14 @@ function finishDate(left){const per={5:.5,15:1,30:2}[(S.profile||{}).mins||15];c
 function renderPath(){
  const tt=t(),Ls=L(),Lv=Ls[lv],p=S.profile;
  $("#hello").textContent=tt.hello(p&&p.name);$("#lead").textContent=tt.lead;
- $("#levels").innerHTML=Ls.map((x,i)=>`<button class="lv" aria-pressed="${i===lv}" data-i="${i}">${esc(x.name)}${x.soon?` <small>${tt.soon}</small>`:""}</button>`).join("");
+ $("#levels").innerHTML=Ls.map((x,i)=>`<button class="lv" aria-pressed="${i===lv}" data-i="${i}">${x.n}. ${esc(x.name)}${x.soon?` <small>${tt.soon}</small>`:""}</button>`).join("");
  $$(".lv").forEach(b=>b.onclick=()=>{lv=+b.dataset.i;renderPath()});
  const tot=Lv.steps.length||30,n=Lv.steps.filter((_,i)=>S.done.includes(sid(Lv.id,i))).length;
  $("#cnt").textContent=n;$("#ofTot").textContent=tt.of(tot);$("#rank").textContent=tt.ranks[rankIdx()];
  const f=n/tot;path.style.strokeDashoffset=LEN*(1-f);const pt=path.getPointAtLength(LEN*f);$("#me").setAttribute("cx",pt.x);$("#me").setAttribute("cy",pt.y);
  const m=$("#list");m.innerHTML="";
  if(Lv.soon){m.innerHTML=`<div class="card soon"><h3>${esc(Lv.name)}</h3><p style="margin:0">${esc(Lv.sub)}. ${tt.soonTxt}</p></div>`;$("#nextBox").hidden=true;return}
- const rec=p?GOAL_STEPS[p.goal]||[]:[];
+ const rec=p&&Lv.id==="base"?GOAL_STEPS[p.goal]||[]:[];
  Lv.sections.forEach((s,si)=>{
   const idx=Lv.steps.map((x,i)=>[x,i]).filter(([x])=>x.s===si),c=idx.filter(([,i])=>S.done.includes(sid(Lv.id,i))).length;
   const sec=document.createElement("section");sec.className="sec";
@@ -333,7 +339,7 @@ function renderPath(){
   const box=sec.querySelector(".stairs");
   idx.forEach(([x,i])=>{const d=S.done.includes(sid(Lv.id,i)),b=document.createElement("button");b.className="st"+(d?" done":"");
    const h=Math.ceil((i+1)/Lv.steps.length*5);
-   b.innerHTML=`<span class="n">${i+1}</span><span class="tt">${esc(x.t)}${rec.includes(i)&&!d?`<span class="tag">${tt.forYou}</span>`:""}</span><span class="bar">${[1,2,3,4,5].map(k=>`<i style="height:${k*3+3}px;opacity:${k<=h?1:.35}"></i>`).join("")}</span>`;
+   b.innerHTML=`<span class="n">${i+1}</span><span class="tt">${esc(x.t)}${rec.includes(i)&&!d?`<span class="tag">${tt.forYou}</span>`:""}${x.upd&&(Date.now()-new Date(x.upd))<45*864e5?`<span class="tag" style="background:var(--done-soft);color:var(--ink)">${tt.updTag}</span>`:""}</span><span class="bar">${[1,2,3,4,5].map(k=>`<i style="height:${k*3+3}px;opacity:${k<=h?1:.35}"></i>`).join("")}</span>`;
    b.onclick=()=>openStep(i);box.appendChild(b)});
   m.appendChild(sec)});
  const nx=nextIndex(Lv);$("#nextBox").hidden=false;$("#nextLbl").textContent=n===0&&p&&p.lvl==="pro"?tt.rec:tt.next;
@@ -373,14 +379,15 @@ function openStep(i,tab="theory"){
 }
 
 /* ---------- library ---------- */
-function renderLib(){const tt=t(),Lv=L()[0];$("#libH").textContent=tt.libH;$("#libP").textContent=tt.libP;$("#q").placeholder=tt.libQ;
- const cur=$("#qs").value;$("#qs").innerHTML=`<option value="">${tt.all}</option>`+Lv.sections.map((s,i)=>`<option value="${i}">${esc(s.name)}</option>`).join("");$("#qs").value=cur;
- const q=$("#q").value.trim().toLowerCase(),sec=$("#qs").value;
- const items=Lv.steps.map((x,i)=>({x,i})).filter(({x})=>(sec===""||x.s==+sec)&&(!q||(x.t+" "+x.prompt+" "+x.good).toLowerCase().includes(q)));
- $("#libList").innerHTML=items.length?items.map(({x,i})=>`<div class="card"><h4><span>${i+1}. ${esc(x.t)}</span><small>${esc(Lv.sections[x.s].name)}</small></h4>
-  <div class="eyebrow" style="margin-bottom:6px">${tt.ready}</div><div class="prompt">${esc(x.prompt)}</div><button class="copy" data-c="p${i}">${tt.copy}</button>
-  <div class="eyebrow" style="margin:12px 0 6px">${tt.ex}</div><div class="prompt">${esc(x.good)}</div><button class="copy" data-c="g${i}">${tt.copy}</button></div>`).join(""):`<p class="lead">${tt.empty}</p>`;
- $$("#libList .copy").forEach(b=>{const i=+b.dataset.c.slice(1),txt=b.dataset.c[0]==="p"?Lv.steps[i].prompt:Lv.steps[i].good;copyBtn(b,txt,b.previousElementSibling)})}
+function renderLib(){const tt=t(),Ls=L().filter(x=>x.steps.length);$("#libH").textContent=tt.libH;$("#libP").textContent=tt.libP;$("#q").placeholder=tt.libQ;
+ const cur=$("#qs").value;$("#qs").innerHTML=`<option value="">${tt.all}</option>`+Ls.map((Lv,li)=>`<optgroup label="${Lv.n}. ${esc(Lv.name)}">`+Lv.sections.map((s,i)=>`<option value="${li}:${i}">${esc(s.name)}</option>`).join("")+`</optgroup>`).join("");$("#qs").value=cur;
+ const q=$("#q").value.trim().toLowerCase(),sel=$("#qs").value;const items=[];
+ Ls.forEach((Lv,li)=>Lv.steps.forEach((x,i)=>{if((sel===""||sel===li+":"+x.s)&&(!q||(x.t+" "+x.prompt+" "+x.good).toLowerCase().includes(q)))items.push({Lv,x,i})}));
+ window._lib=items;
+ $("#libList").innerHTML=items.length?items.map(({Lv,x,i},k)=>`<div class="card"><h4><span>${esc(x.t)}</span><small>${Lv.n}.${i+1} · ${esc(Lv.sections[x.s].name)}</small></h4>
+  <div class="eyebrow" style="margin-bottom:6px">${tt.ready}</div><div class="prompt">${esc(x.prompt)}</div><button class="copy" data-c="p${k}">${tt.copy}</button>
+  <div class="eyebrow" style="margin:12px 0 6px">${tt.ex}</div><div class="prompt">${esc(x.good)}</div><button class="copy" data-c="g${k}">${tt.copy}</button></div>`).join(""):`<p class="lead">${tt.empty}</p>`;
+ $$("#libList .copy").forEach(b=>{const it=items[+b.dataset.c.slice(1)].x,txt=b.dataset.c[0]==="p"?it.prompt:it.good;copyBtn(b,txt,b.previousElementSibling)})}
 $("#q").oninput=renderLib;$("#qs").onchange=renderLib;
 
 /* ---------- builder ---------- */
@@ -403,21 +410,28 @@ function build(){const tt=t(),en=S.lang==="en",v=i=>$("#b"+i).value.trim(),out=[
 ["b1","b2","b3","b6"].forEach(i=>$("#"+i).oninput=build);["b4","b5"].forEach(i=>$("#"+i).onchange=build);
 
 /* ---------- profile ---------- */
-function renderMe(){const tt=t(),d=S.done.filter(x=>x.startsWith("base:")).length;
- $("#meH").textContent=tt.meH;$("#meP").textContent=tt.meP;$("#badH").textContent=tt.badH;$("#certH").textContent=tt.certH;
- $("#stats").innerHTML=[S.xp,streak(),d].map((n,i)=>`<div class="card"><b>${n}</b><span>${tt.st[i]}</span></div>`).join("");
+let certLv=0;
+function renderMe(){const tt=t(),Ls=L(),d=S.done.filter(x=>x.startsWith("base:")).length;
+ $("#meH").textContent=tt.meH;$("#meP").textContent=tt.meP;$("#badH").textContent=tt.badH;$("#certH").textContent=tt.certPick;
+ $("#stats").innerHTML=[S.xp,streak(),S.done.length].map((n,i)=>`<div class="card"><b>${n}</b><span>${tt.st[i]}</span></div>`).join("");
  const bs=badgeState();$("#badges").innerHTML=tt.badges.map((b,i)=>`<div class="badge ${bs[i]?"on":"off"}"><i>${b[0]}</i><b>${b[1]}</b><br><span style="color:var(--muted)">${b[2]}</span></div>`).join("");
- drawCert(d>=30);$("#certNote").textContent=d>=30?tt.certOk:tt.certLock(30-d);$("#certDl").textContent=tt.dl;$("#certSh").textContent=tt.share;
- $("#certDl").disabled=$("#certSh").disabled=d<30;$("#certSh").hidden=!navigator.share;
+ const lvDone=Lv=>Lv.steps.filter((_,i)=>S.done.includes(sid(Lv.id,i))).length;
+ $("#certLv").innerHTML=Ls.map((Lv,i)=>`<button class="lv" aria-pressed="${i===certLv}" data-i="${i}">${Lv.n}. ${esc(Lv.name)}${lvDone(Lv)>=Lv.steps.length&&Lv.steps.length?" ✓":""}</button>`).join("");
+ $$("#certLv .lv").forEach(b=>b.onclick=()=>{certLv=+b.dataset.i;renderMe()});
+ const Lv=Ls[certLv],dn=lvDone(Lv),tot=Lv.steps.length,ok=tot>0&&dn>=tot;
+ drawCert(ok,Lv);$("#certNote").textContent=ok?tt.certOk:tt.certLock(tot-dn,Lv.name);$("#certDl").textContent=tt.dl;$("#certSh").textContent=tt.share;
+ $("#certDl").disabled=$("#certSh").disabled=!ok;$("#certSh").hidden=!navigator.share;
+ $("#upH").textContent=tt.upH;const U=(window.UPDATES||[]).slice(0,6);
+ $("#upList").innerHTML=U.map(u=>`<div><div style="font-size:13px;color:var(--muted)">${new Date(u.date).toLocaleDateString(S.lang==="en"?"en-GB":"ru-RU",{day:"numeric",month:"long",year:"numeric"})}</div><div>${esc(u[S.lang]||u.ru)}</div></div>`).join("");
  $("#langL").textContent=tt.langL;$$("#langSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===S.lang));
  $("#redo").textContent=tt.redo;$("#reset").textContent=tt.reset;$("#disc").textContent=tt.disc}
-async function drawCert(ok){const c=$("#cert"),x=c.getContext("2d"),tt=t().cert,W=1200,H=840,GOLD="#F2B83D",GOLD2="#C98A12";
+async function drawCert(ok,Lv){const c=$("#cert"),x=c.getContext("2d"),tt=t().cert,W=1200,H=840,GOLD="#F2B83D",GOLD2="#C98A12";
  try{await Promise.all(["700 40px Unbounded","500 20px Unbounded","400 20px 'Golos Text'","600 20px 'Golos Text'","90px 'Great Vibes'","90px 'Marck Script'"].map(f=>document.fonts.load(f)))}catch(e){}
  const name=(S.profile&&S.profile.name)||tt.nm;
- if(ok&&!S.certDate){S.certDate=new Date().toISOString();save()}
- const when=S.certDate?new Date(S.certDate):new Date();
+ S.certDates=S.certDates||{};if(S.certDate&&!S.certDates.base)S.certDates.base=S.certDate;if(ok&&!S.certDates[Lv.id]){S.certDates[Lv.id]=new Date().toISOString();save()}
+ const when=S.certDates[Lv.id]?new Date(S.certDates[Lv.id]):new Date();
  const dt=when.toLocaleDateString(S.lang==="en"?"en-GB":"ru-RU",{day:"numeric",month:"long",year:"numeric"});
- let hsh=0;for(const ch of name+when.toISOString().slice(0,10))hsh=(hsh*31+ch.charCodeAt(0))>>>0;const num="SH-"+String(hsh%1000000).padStart(6,"0");
+ let hsh=0;for(const ch of name+Lv.id+when.toISOString().slice(0,10))hsh=(hsh*31+ch.charCodeAt(0))>>>0;const num="SH-"+String(hsh%1000000).padStart(6,"0");
  // background
  const g=x.createRadialGradient(W/2,260,60,W/2,420,820);g.addColorStop(0,"#1E2A78");g.addColorStop(1,"#080B24");x.fillStyle=g;x.fillRect(0,0,W,H);
  // stars
@@ -439,11 +453,11 @@ async function drawCert(ok){const c=$("#cert"),x=c.getContext("2d"),tt=t().cert,
  let fs=92;const nf=/[а-яё]/i.test(name)?"'Marck Script'":"'Great Vibes'";x.font=fs+"px "+nf+", cursive";while(x.measureText(name).width>840&&fs>44){fs-=4;x.font=fs+"px "+nf+", cursive"}
  const ng=x.createLinearGradient(0,240,0,320);ng.addColorStop(0,"#FFFFFF");ng.addColorStop(1,"#DCE1FF");x.fillStyle=ng;x.fillText(name,W/2,312);
  x.strokeStyle="rgba(242,184,61,.7)";x.lineWidth=1.5;x.beginPath();x.moveTo(W/2-320,334);x.lineTo(W/2+320,334);x.stroke();
- x.fillStyle="#FFFFFF";x.font="600 25px 'Golos Text', sans-serif";x.fillText(tt.c,W/2,380);
- x.fillStyle="#AEB6E0";x.font="400 20px 'Golos Text', sans-serif";x.fillText(tt.d(Math.min(30,S.quiz.filter(k=>k.startsWith("base:")).length)),W/2,414);
+ x.fillStyle="#FFFFFF";x.font="600 25px 'Golos Text', sans-serif";x.fillText(tt.c(Lv.n,Lv.name),W/2,380);
+ x.fillStyle="#AEB6E0";x.font="400 20px 'Golos Text', sans-serif";x.fillText(tt.d(Math.min(Lv.steps.length,S.quiz.filter(k=>k.startsWith(Lv.id+":")).length),Lv.steps.length),W/2,414);
  // skills
  x.fillStyle=GOLD;x.font="500 13px Unbounded, sans-serif";x.letterSpacing="4px";x.fillText(tt.sk,W/2,462);x.letterSpacing="0px";
- x.font="600 17px 'Golos Text', sans-serif";const pads=30,gap=12,rows=[tt.skills.slice(0,3),tt.skills.slice(3)];
+ x.font="600 17px 'Golos Text', sans-serif";const pads=30,gap=12,rows=[(Lv.skills||[]).slice(0,3),(Lv.skills||[]).slice(3)];
  rows.forEach((row,ri)=>{const ws=row.map(s=>x.measureText(s).width+pads);let px=(W-(ws.reduce((p,c)=>p+c,0)+gap*(ws.length-1)))/2;const y=478+ri*46,hh=36;
   row.forEach((s,i)=>{const w=ws[i];x.beginPath();x.roundRect(px,y,w,hh,18);x.fillStyle="rgba(242,184,61,.12)";x.fill();x.strokeStyle="rgba(242,184,61,.55)";x.lineWidth=1.2;x.stroke();
    x.fillStyle="#FFFFFF";x.fillText(s,px+w/2,y+24);px+=w+gap})});
@@ -452,7 +466,7 @@ async function drawCert(ok){const c=$("#cert"),x=c.getContext("2d"),tt=t().cert,
  x.fillStyle=GOLD;x.beginPath();for(let i=0;i<48;i++){const r=i%2?74:82,a=i*Math.PI/24;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.closePath();x.fill();
  const sg=x.createRadialGradient(-20,-20,10,0,0,68);sg.addColorStop(0,"#FFE29A");sg.addColorStop(1,GOLD2);x.fillStyle=sg;x.beginPath();x.arc(0,0,66,0,7);x.fill();
  x.strokeStyle="rgba(8,11,36,.55)";x.lineWidth=2;x.beginPath();x.arc(0,0,56,0,7);x.stroke();
- x.fillStyle="#0B1030";x.font="700 40px Unbounded, sans-serif";x.fillText("30",0,10);x.font="500 11px Unbounded, sans-serif";x.letterSpacing="3px";x.fillText(tt.steps,0,34);x.letterSpacing="0px";
+ x.fillStyle="#0B1030";x.font="500 11px Unbounded, sans-serif";x.letterSpacing="3px";x.fillText(tt.steps,0,34);x.letterSpacing="0px";x.font="700 40px Unbounded, sans-serif";x.fillText(String(Lv.n),0,10);x.font="500 11px Unbounded, sans-serif";x.letterSpacing="0px";
  x.beginPath();x.moveTo(-26,-22);x.lineTo(-13,-22);x.lineTo(-13,-32);x.lineTo(0,-32);x.lineTo(0,-42);x.lineTo(13,-42);x.strokeStyle="#0B1030";x.lineWidth=3;x.stroke();
  x.restore();
  // date (left)
