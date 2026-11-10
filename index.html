@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Claude Skill Hill</title>
+<meta name="description" content="Claude Skill Hill — бесплатный курс: освой Claude ступень за ступенью. Теория, примеры, практика и тесты на каждой ступени.">
+<meta name="theme-color" content="#2E47F5">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta property="og:title" content="Claude Skill Hill">
+<meta property="og:description" content="Освой Claude ступень за ступенью.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono&display=swap">
+<style>
+/* Layout: одна колонка — холм с прогрессом, ступени по разделам, ступень открывается листом с вкладками */
+:root{
+  --bg:#F2F3F7; --surface:#FFFFFF; --ink:#13151E; --muted:#5B6075; --line:#DDE0EA;
+  --accent:#2E47F5; --accent-soft:#E3E7FF; --done:#E9A51C; --done-soft:#FCF0D2;
+  --good:#1F8A55; --good-soft:#DDF3E6; --bad:#C4372F; --bad-soft:#FBE2E0;
+  --display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0E1017; --surface:#171A24; --ink:#ECEEF5; --muted:#9AA0B6; --line:#272B3A;
+  --accent:#7D8CFF; --accent-soft:#1F2547; --done:#F2B83D; --done-soft:#3A2F14;
+  --good:#5BD394; --good-soft:#15301F; --bad:#FF7F75; --bad-soft:#3A1715; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font:700 clamp(30px,8vw,48px)/1.02 var(--display);margin:6px 0 8px;letter-spacing:-.01em}
+h1 span{color:var(--accent)}
+.lead{color:var(--muted);margin:0;max-width:52ch}
+.hill{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px 16px 12px}
+.hill svg{width:100%;height:auto;display:block}
+.hill .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:6px}
+.hill b{font:700 22px var(--display);font-variant-numeric:tabular-nums}
+.levels{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.lv{all:unset;cursor:pointer;flex:none;padding:9px 14px;border-radius:999px;border:1px solid var(--line);font-weight:600;font-size:14px;background:var(--surface)}
+.lv[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.lv small{font-weight:500;opacity:.7}
+.next{background:var(--ink);color:var(--bg);border-radius:18px;padding:16px 18px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.next p{margin:0;min-width:0}.next .t{font:600 17px/1.3 var(--display)}
+.btn{font:600 15px var(--body);border:0;border-radius:999px;padding:11px 18px;cursor:pointer;background:var(--accent);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ok{background:var(--done);color:#1b1404}
+:focus-visible{outline:3px solid var(--done);outline-offset:2px}
+.sec h2{font:600 15px var(--display);margin:0 0 2px;display:flex;justify-content:space-between;gap:8px}
+.sec h2 em{font:500 13px var(--body);color:var(--muted);font-style:normal;font-variant-numeric:tabular-nums}
+.sec .d{color:var(--muted);font-size:14px;margin:0 0 10px}
+.stairs{display:flex;flex-direction:column;gap:6px}
+.st{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;transition:transform .15s,border-color .15s}
+.st:hover{border-color:var(--accent);transform:translateX(3px)}
+.st .n{font:700 18px var(--display);color:var(--accent);font-variant-numeric:tabular-nums;text-align:center}
+.st .tt{font-weight:600;min-width:0}
+.st .bar{display:flex;align-items:flex-end;gap:2px;height:18px}
+.st .bar i{width:4px;background:var(--line);border-radius:1px}
+.st.done{background:var(--done-soft);border-color:var(--done)}
+.st.done .n{color:var(--done)}
+.st.done .bar i{background:var(--done)}
+.soon{background:var(--surface);border:1px dashed var(--line);border-radius:16px;padding:22px;color:var(--muted)}
+.soon h3{font:600 18px var(--display);color:var(--ink);margin:0 0 6px}
+.foot{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.linkbtn{all:unset;cursor:pointer;color:var(--accent);font-weight:600}
+.veil{position:fixed;inset:0;background:rgba(10,12,20,.5);z-index:20}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-radius:22px 22px 0 0;max-height:90%;overflow:auto;max-width:760px;margin:0 auto;
+  padding:18px max(20px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.st{transition:none}}
+.sheet .top{display:flex;justify-content:space-between;align-items:start;gap:12px}
+.x{all:unset;cursor:pointer;font-size:24px;line-height:1;padding:2px 8px;color:var(--muted)}
+.sheet h3{font:700 22px/1.2 var(--display);margin:4px 0 12px;text-wrap:balance}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:0 -4px 14px;padding:0 4px 4px;position:sticky;top:-18px;background:var(--surface);padding-top:8px}
+.tab{all:unset;cursor:pointer;flex:none;font-size:14px;font-weight:600;padding:7px 12px;border-radius:999px;background:var(--bg);color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--accent);color:#fff}
+.pane p,.pane li{max-width:65ch}.pane ul{padding-left:20px;margin:0}
+.cmp{display:grid;gap:10px}
+.cmp div{border-radius:12px;padding:12px 14px}
+.cmp .b{background:var(--bad-soft)}.cmp .g{background:var(--good-soft)}
+.cmp span{display:block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.cmp .b span{color:var(--bad)}.cmp .g span{color:var(--good)}
+.prompt{background:var(--accent-soft);border-radius:12px;padding:14px;font:14px/1.5 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;margin-top:14px}
+.copy{all:unset;cursor:pointer;font:600 13px var(--body);color:var(--accent);margin-top:8px;display:inline-block}
+.q{font-weight:600;margin:0 0 10px}
+.opt{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+.opt.right{background:var(--good-soft);border-color:var(--good)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Бесплатный курс</div>
+    <h1>Claude <span>Skill Hill</span></h1>
+    <p class="lead">Освой Claude ступень за ступенью. На каждой ступени — теория, пример, практика, частые ошибки и мини-тест.</p>
+  </header>
+
+  <div class="hill" aria-label="Прогресс подъёма">
+    <svg viewBox="0 0 320 90" role="img" aria-hidden="true">
+      <path d="M0 88 C60 86 90 70 130 52 S220 12 320 6" fill="none" stroke="var(--line)" stroke-width="8" stroke-linecap="round"/>
+      <path id="climb" d="M0 88 C60 86 90 70 130 52 S220 12 320 6" fill="none" stroke="var(--done)" stroke-width="8" stroke-linecap="round"/>
+      <circle id="me" r="9" fill="var(--accent)" stroke="var(--surface)" stroke-width="3"/>
+    </svg>
+    <div class="row"><span><b id="cnt">0</b> <span style="color:var(--muted)">из <span id="tot">30</span> ступеней</span></span><span class="eyebrow" id="lvname"></span></div>
+  </div>
+
+  <div class="levels" id="levels" role="group" aria-label="Уровни"></div>
+
+  <div class="next" id="nextBox">
+    <p><span class="eyebrow" style="color:inherit;opacity:.7">Следующая ступень</span><br><span class="t" id="nextT"></span></p>
+    <button class="btn" id="nextB">Подняться</button>
+  </div>
+
+  <main id="list" style="display:flex;flex-direction:column;gap:24px"></main>
+
+  <div class="foot">
+    <span>Claude Skill Hill · независимый учебный курс</span>
+    <button class="linkbtn" id="reset">Сбросить прогресс</button>
+  </div>
+</div>
+
+<div class="veil" id="veil" hidden></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sh"></div>
+
+<script src="steps.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const KEY="skillhill_done";
+let done=new Set(), lv=0;
+try{done=new Set(JSON.parse(localStorage.getItem(KEY)||"[]"))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify([...done]))}catch(e){}};
+const id=(L,i)=>L.id+":"+i;
+const path=$("#climb"),LEN=path.getTotalLength();
+path.style.strokeDasharray=LEN;
+
+function render(){
+  const L=LEVELS[lv];
+  $("#levels").innerHTML=LEVELS.map((x,i)=>`<button class="lv" aria-pressed="${i===lv}" data-i="${i}">${x.name}${x.soon?" <small>скоро</small>":""}</button>`).join("");
+  document.querySelectorAll(".lv").forEach(b=>b.onclick=()=>{lv=+b.dataset.i;render()});
+  const n=L.steps.filter((_,i)=>done.has(id(L,i))).length, tot=L.steps.length||30;
+  $("#cnt").textContent=n;$("#tot").textContent=tot;$("#lvname").textContent="Уровень: "+L.name;
+  const f=n/tot;path.style.strokeDashoffset=LEN*(1-f);
+  const p=path.getPointAtLength(LEN*f);$("#me").setAttribute("cx",p.x);$("#me").setAttribute("cy",p.y);
+  const m=$("#list");m.innerHTML="";
+  if(L.soon){
+    m.innerHTML=`<div class="soon"><h3>${L.name}</h3><p>${L.sub}. Продвинутые запросы, агенты, автоматизация бизнеса, работа с API и свои инструменты.</p></div>`;
+    $("#nextBox").hidden=true;return;
+  }
+  L.sections.forEach((s,si)=>{
+    const idx=L.steps.map((x,i)=>[x,i]).filter(([x])=>x.s===si);
+    const c=idx.filter(([,i])=>done.has(id(L,i))).length;
+    const sec=document.createElement("section");sec.className="sec";
+    sec.innerHTML=`<h2><span>${s.name}</span><em>${c}/${idx.length}</em></h2><p class="d">${s.d}</p><div class="stairs"></div>`;
+    const box=sec.querySelector(".stairs");
+    idx.forEach(([x,i])=>{
+      const b=document.createElement("button");const d=done.has(id(L,i));
+      b.className="st"+(d?" done":"");
+      const h=Math.ceil((i+1)/L.steps.length*5);
+      b.innerHTML=`<span class="n">${i+1}</span><span class="tt">${x.t}</span><span class="bar">${[1,2,3,4,5].map(k=>`<i style="height:${k*3+3}px;opacity:${k<=h?1:.35}"></i>`).join("")}</span>`;
+      b.setAttribute("aria-label",`Ступень ${i+1}: ${x.t}${d?", пройдена":""}`);
+      b.onclick=()=>open(i);box.appendChild(b);
+    });
+    m.appendChild(sec);
+  });
+  const nx=L.steps.findIndex((_,i)=>!done.has(id(L,i)));
+  $("#nextBox").hidden=false;
+  if(nx<0){$("#nextT").textContent="Уровень пройден. Вы на вершине!";$("#nextB").hidden=true}
+  else{$("#nextT").textContent=`${nx+1}. ${L.steps[nx].t}`;$("#nextB").hidden=false;$("#nextB").onclick=()=>open(nx)}
+}
+
+const TABS=[["theory","Теория"],["example","Пример"],["practice","Практика"],["mistakes","Ошибки"],["quiz","Тест"],["more","Ещё"]];
+function open(i,tab="theory"){
+  const L=LEVELS[lv],x=L.steps[i],s=$("#sheet"),d=done.has(id(L,i));
+  s.innerHTML=`<div class="top"><span class="eyebrow">Ступень ${i+1} из ${L.steps.length} · ${L.sections[x.s].name}</span><button class="x" aria-label="Закрыть">×</button></div>
+  <h3 id="sh">${x.t}</h3>
+  <div class="tabs" role="tablist">${TABS.map(([k,v])=>`<button class="tab" role="tab" data-k="${k}" aria-selected="${k===tab}">${v}</button>`).join("")}</div>
+  <div class="pane" id="pane"></div>
+  <div class="actions">${d?`<button class="btn ghost" data-a="undo">Снять отметку</button>`:`<button class="btn ok" data-a="done">Ступень пройдена</button>`}${i<L.steps.length-1?`<button class="btn ghost" data-a="next">Ступень ${i+2} →</button>`:""}</div>`;
+  const pane=s.querySelector("#pane");
+  const show=k=>{
+    s.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.k===k));
+    pane.innerHTML="";
+    if(k==="theory")pane.innerHTML=`<p></p>`,pane.firstChild.textContent=x.theory;
+    if(k==="example"){pane.innerHTML=`<div class="cmp"><div class="b"><span>Слабый запрос</span><p style="margin:0"></p></div><div class="g"><span>Сильный запрос</span><p style="margin:0"></p></div></div>`;const ps=pane.querySelectorAll("p");ps[0].textContent=x.bad;ps[1].textContent=x.good}
+    if(k==="practice"){pane.innerHTML=`<ul>${x.tasks.map(t=>`<li></li>`).join("")}</ul><div class="prompt"></div><button class="copy">Скопировать запрос</button>`;
+      pane.querySelectorAll("li").forEach((li,j)=>li.textContent=x.tasks[j]);const pr=pane.querySelector(".prompt");pr.textContent=x.prompt;
+      pane.querySelector(".copy").onclick=e=>{const b=e.target;(navigator.clipboard?navigator.clipboard.writeText(x.prompt):Promise.reject()).then(()=>b.textContent="Скопировано",()=>{const r=document.createRange();r.selectNodeContents(pr);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);b.textContent="Выделено — скопируйте вручную"})}}
+    if(k==="mistakes"){pane.innerHTML=`<ul>${x.mistakes.map(()=>`<li></li>`).join("")}</ul>`;pane.querySelectorAll("li").forEach((li,j)=>li.textContent=x.mistakes[j])}
+    if(k==="quiz"){const [q,o,a]=x.quiz;pane.innerHTML=`<p class="q"></p>${o.map((_,j)=>`<button class="opt" data-j="${j}"></button>`).join("")}<p id="res" style="font-weight:600"></p>`;
+      pane.querySelector(".q").textContent=q;pane.querySelectorAll(".opt").forEach(b=>{b.textContent=o[+b.dataset.j];b.onclick=()=>{
+        const j=+b.dataset.j;pane.querySelectorAll(".opt").forEach(z=>z.classList.remove("right","wrong"));
+        b.classList.add(j===a?"right":"wrong");pane.querySelector("#res").textContent=j===a?"Верно!":"Не совсем. Попробуйте ещё раз."}})}
+    if(k==="more")pane.innerHTML=`<p></p>`,pane.firstChild.textContent=x.more;
+  };
+  s.querySelectorAll(".tab").forEach(t=>t.onclick=()=>show(t.dataset.k));
+  show(tab);
+  s.querySelector(".x").onclick=close;
+  s.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{
+    const a=b.dataset.a;
+    if(a==="done"){done.add(id(L,i));save();render();i<L.steps.length-1?open(i+1):close()}
+    else if(a==="undo"){done.delete(id(L,i));save();render();open(i)}
+    else open(i+1);
+  });
+  s.hidden=false;$("#veil").hidden=false;s.scrollTop=0;
+}
+function close(){$("#sheet").hidden=true;$("#veil").hidden=true}
+$("#veil").onclick=close;
+document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+let armed=false;
+$("#reset").onclick=e=>{if(!armed){armed=true;e.target.textContent="Нажмите ещё раз для сброса";setTimeout(()=>{armed=false;e.target.textContent="Сбросить прогресс"},3000)}else{done.clear();save();render();armed=false;e.target.textContent="Сбросить прогресс"}};
+render();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
