@@ -12,7 +12,7 @@
 <meta property="og:title" content="Claude Skill Hill">
 <meta property="og:description" content="Освой Claude ступень за ступенью. Бесплатно.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono&family=Great+Vibes&family=Marck+Script&display=swap">
 <style>
 /* Layout: приложение с нижней навигацией — Путь / Промпты / Конструктор / Профиль; ступень и онбординг — листы поверх */
 :root{
@@ -251,7 +251,7 @@ ru:{nav:["Путь","Промпты","Конструктор","Профиль"],
   goals:[["work","Работа","письма, документы, отчёты"],["biz","Бизнес","клиенты, маркетинг, продажи"],["study","Учёба","разобраться, запомнить, исследовать"],["life","Для себя","быт, планы, идеи"]],
   lvls:[["new","Новичок","ещё не пользовался"],["some","Пробовал","иногда задаю вопросы"],["pro","Уверенно","пользуюсь регулярно"]],
   minsL:[[5,"5 минут","лёгкий темп"],[15,"15 минут","оптимально"],[30,"30 минут","быстрый подъём"]]},
- cert:{t:"СЕРТИФИКАТ",s:"подтверждает, что",c:"прошёл(ла) уровень «Основы» курса Claude Skill Hill",d:"30 ступеней · теория, практика и тесты",nm:"Участник"},
+ cert:{t:"СЕРТИФИКАТ",s:"Этот сертификат подтверждает, что",c:"прошёл(ла) уровень «Основы» курса Claude Skill Hill",d:"30 ступеней · теория · практика · тесты",nm:"Участник",date:"Дата",sign:"Команда Skill Hill",sample:"ОБРАЗЕЦ",steps:"СТУПЕНЕЙ"},
  lvlUp:r=>`Новое звание: ${r}!`,badgeGot:b=>`Награда: ${b}`},
 en:{nav:["Path","Prompts","Builder","Profile"],hello:n=>n?`Hi, ${n}!`:"Master Claude step by step",
  lead:"Theory, example, practice, mistakes and a quiz on every step.",of:t=>`of ${t} steps`,next:"Next step",go:"Climb",
@@ -274,7 +274,7 @@ en:{nav:["Path","Prompts","Builder","Profile"],hello:n=>n?`Hi, ${n}!`:"Master Cl
   goals:[["work","Work","emails, documents, reports"],["biz","Business","clients, marketing, sales"],["study","Study","understand, remember, research"],["life","Personal","home, plans, ideas"]],
   lvls:[["new","Beginner","never used it"],["some","Tried it","ask questions sometimes"],["pro","Confident","use it regularly"]],
   minsL:[[5,"5 minutes","easy pace"],[15,"15 minutes","optimal"],[30,"30 minutes","fast climb"]]},
- cert:{t:"CERTIFICATE",s:"this certifies that",c:"has completed the Basics level of Claude Skill Hill",d:"30 steps · theory, practice and quizzes",nm:"Participant"},
+ cert:{t:"CERTIFICATE",s:"This certifies that",c:"has completed the Basics level of Claude Skill Hill",d:"30 steps · theory · practice · quizzes",nm:"Participant",date:"Date",sign:"Skill Hill Team",sample:"SAMPLE",steps:"STEPS"},
  lvlUp:r=>`New rank: ${r}!`,badgeGot:b=>`Badge earned: ${b}`}
 };
 /* steps recommended per goal (0-based) */
@@ -411,20 +411,60 @@ function renderMe(){const tt=t(),d=S.done.filter(x=>x.startsWith("base:")).lengt
  $("#certDl").disabled=$("#certSh").disabled=d<30;$("#certSh").hidden=!navigator.share;
  $("#langL").textContent=tt.langL;$$("#langSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.l===S.lang));
  $("#redo").textContent=tt.redo;$("#reset").textContent=tt.reset;$("#disc").textContent=tt.disc}
-function drawCert(ok){const c=$("#cert"),x=c.getContext("2d"),tt=t().cert,W=1200,H=840;
- x.fillStyle="#FBFBFD";x.fillRect(0,0,W,H);x.strokeStyle="#2E47F5";x.lineWidth=14;x.strokeRect(30,30,W-60,H-60);
- x.strokeStyle="#E9A51C";x.lineWidth=3;x.strokeRect(54,54,W-108,H-108);
- x.beginPath();x.moveTo(120,700);x.bezierCurveTo(360,690,480,560,640,470);x.bezierCurveTo(800,380,900,250,1080,220);x.strokeStyle="#E3E7FF";x.lineWidth=26;x.lineCap="round";x.stroke();
- x.textAlign="center";x.fillStyle="#2E47F5";x.font="700 30px Unbounded, sans-serif";x.fillText("CLAUDE SKILL HILL",W/2,150);
- x.fillStyle="#13151E";x.font="700 64px Unbounded, sans-serif";x.fillText(tt.t,W/2,250);
- x.fillStyle="#5B6075";x.font="400 28px 'Golos Text', sans-serif";x.fillText(tt.s,W/2,320);
- x.fillStyle="#13151E";x.font="700 58px Unbounded, sans-serif";x.fillText((S.profile&&S.profile.name)||tt.nm,W/2,410);
- x.fillStyle="#13151E";x.font="500 30px 'Golos Text', sans-serif";x.fillText(tt.c,W/2,480);
- x.fillStyle="#5B6075";x.font="400 24px 'Golos Text', sans-serif";x.fillText(tt.d,W/2,525);
- const dt=new Date().toLocaleDateString(S.lang==="en"?"en-GB":"ru-RU",{day:"numeric",month:"long",year:"numeric"});
- x.fillText(dt+"  ·  XP "+S.xp,W/2,700);
- x.fillStyle="#E9A51C";x.beginPath();x.arc(1080,220,24,0,7);x.fill();
- if(!ok){x.fillStyle="rgba(242,243,247,.78)";x.fillRect(0,0,W,H);x.fillStyle="#5B6075";x.font="700 120px Unbounded, sans-serif";x.fillText("🔒",W/2,H/2+40)}}
+async function drawCert(ok){const c=$("#cert"),x=c.getContext("2d"),tt=t().cert,W=1200,H=840,GOLD="#F2B83D",GOLD2="#C98A12";
+ try{await Promise.all(["700 40px Unbounded","500 20px Unbounded","400 20px 'Golos Text'","600 20px 'Golos Text'","90px 'Great Vibes'","90px 'Marck Script'"].map(f=>document.fonts.load(f)))}catch(e){}
+ const name=(S.profile&&S.profile.name)||tt.nm;
+ if(ok&&!S.certDate){S.certDate=new Date().toISOString();save()}
+ const when=S.certDate?new Date(S.certDate):new Date();
+ const dt=when.toLocaleDateString(S.lang==="en"?"en-GB":"ru-RU",{day:"numeric",month:"long",year:"numeric"});
+ let hsh=0;for(const ch of name+when.toISOString().slice(0,10))hsh=(hsh*31+ch.charCodeAt(0))>>>0;const num="SH-"+String(hsh%1000000).padStart(6,"0");
+ // background
+ const g=x.createRadialGradient(W/2,260,60,W/2,420,820);g.addColorStop(0,"#1E2A78");g.addColorStop(1,"#080B24");x.fillStyle=g;x.fillRect(0,0,W,H);
+ // stars
+ let sd=7;const rnd=()=>(sd=(sd*9301+49297)%233280)/233280;x.fillStyle="rgba(255,255,255,.55)";for(let i=0;i<70;i++){x.globalAlpha=.2+rnd()*.6;x.beginPath();x.arc(rnd()*W,rnd()*360,rnd()*1.6+.4,0,7);x.fill()}x.globalAlpha=1;
+ // hill silhouette
+ x.beginPath();x.moveTo(0,H);x.lineTo(0,700);x.bezierCurveTo(260,690,420,600,600,520);x.bezierCurveTo(760,450,900,360,1200,330);x.lineTo(W,H);x.closePath();
+ const hg=x.createLinearGradient(0,330,0,H);hg.addColorStop(0,"rgba(46,71,245,.35)");hg.addColorStop(1,"rgba(46,71,245,.05)");x.fillStyle=hg;x.fill();
+ // gold staircase climbing the hill
+ x.beginPath();let sx=70,sy=705;x.moveTo(sx,sy);for(let i=0;i<6;i++){sy-=28;x.lineTo(sx,sy);sx+=40;x.lineTo(sx,sy)}
+ x.strokeStyle="rgba(242,184,61,.28)";x.lineWidth=4;x.lineJoin="round";x.stroke();
+ // borders
+ x.strokeStyle=GOLD;x.lineWidth=3;x.strokeRect(28,28,W-56,H-56);x.strokeStyle="rgba(242,184,61,.45)";x.lineWidth=1.5;x.strokeRect(42,42,W-84,H-84);
+ [[28,28],[W-28,28],[28,H-28],[W-28,H-28]].forEach(([a,b])=>{x.fillStyle=GOLD;x.beginPath();x.moveTo(a,b-10);x.lineTo(a+10,b);x.lineTo(a,b+10);x.lineTo(a-10,b);x.closePath();x.fill()});
+ x.textAlign="center";x.textBaseline="alphabetic";
+ // header
+ x.fillStyle=GOLD;x.font="500 20px Unbounded, sans-serif";x.letterSpacing="8px";x.fillText("CLAUDE SKILL HILL  ·  "+tt.t,W/2,108);x.letterSpacing="0px";
+ x.strokeStyle="rgba(242,184,61,.6)";x.lineWidth=1.5;x.beginPath();x.moveTo(W/2-250,128);x.lineTo(W/2+250,128);x.stroke();
+ // headline
+ const hl=x.createLinearGradient(0,150,0,230);hl.addColorStop(0,"#FFFFFF");hl.addColorStop(1,"#C9D0FF");x.fillStyle=hl;
+ x.font="700 62px Unbounded, sans-serif";x.fillText("You've mastered it!",W/2,215);
+ x.fillStyle="#AEB6E0";x.font="400 24px 'Golos Text', sans-serif";x.fillText(tt.s,W/2,275);
+ // name
+ let fs=104;const nf=/[а-яё]/i.test(name)?"'Marck Script'":"'Great Vibes'";x.font=fs+"px "+nf+", cursive";while(x.measureText(name).width>820&&fs>48){fs-=4;x.font=fs+"px "+nf+", cursive"}
+ const ng=x.createLinearGradient(0,300,0,390);ng.addColorStop(0,"#FFE29A");ng.addColorStop(1,GOLD2);x.fillStyle=ng;x.fillText(name,W/2,375);
+ x.strokeStyle="rgba(242,184,61,.7)";x.lineWidth=1.5;x.beginPath();x.moveTo(W/2-300,400);x.lineTo(W/2+300,400);x.stroke();
+ x.fillStyle="#FFFFFF";x.font="600 26px 'Golos Text', sans-serif";x.fillText(tt.c,W/2,452);
+ x.fillStyle="#AEB6E0";x.font="400 21px 'Golos Text', sans-serif";x.fillText(tt.d,W/2,490);
+ // seal
+ const cx=W/2,cy=650;x.save();x.translate(cx,cy);
+ x.fillStyle=GOLD;x.beginPath();for(let i=0;i<48;i++){const r=i%2?74:82,a=i*Math.PI/24;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.closePath();x.fill();
+ const sg=x.createRadialGradient(-20,-20,10,0,0,68);sg.addColorStop(0,"#FFE29A");sg.addColorStop(1,GOLD2);x.fillStyle=sg;x.beginPath();x.arc(0,0,66,0,7);x.fill();
+ x.strokeStyle="rgba(8,11,36,.55)";x.lineWidth=2;x.beginPath();x.arc(0,0,56,0,7);x.stroke();
+ x.fillStyle="#0B1030";x.font="700 40px Unbounded, sans-serif";x.fillText("30",0,10);x.font="500 11px Unbounded, sans-serif";x.letterSpacing="3px";x.fillText(tt.steps,0,34);x.letterSpacing="0px";
+ x.beginPath();x.moveTo(-26,-22);x.lineTo(-13,-22);x.lineTo(-13,-32);x.lineTo(0,-32);x.lineTo(0,-42);x.lineTo(13,-42);x.strokeStyle="#0B1030";x.lineWidth=3;x.stroke();
+ x.restore();
+ // date (left)
+ x.fillStyle="#FFFFFF";x.font="600 24px 'Golos Text', sans-serif";x.fillText(dt,250,660);
+ x.strokeStyle="rgba(242,184,61,.6)";x.lineWidth=1.5;x.beginPath();x.moveTo(120,676);x.lineTo(380,676);x.stroke();
+ x.fillStyle="#AEB6E0";x.font="400 18px 'Golos Text', sans-serif";x.fillText(tt.date,250,702);
+ // signature (right)
+ x.save();x.translate(950,652);x.rotate(-.06);x.fillStyle="#FFFFFF";x.font="56px 'Great Vibes', cursive";x.fillText("Claude Skill Hill",0,0);
+ x.strokeStyle="#FFFFFF";x.lineWidth=2;x.beginPath();x.moveTo(-150,14);x.bezierCurveTo(-60,30,60,0,170,10);x.stroke();x.restore();
+ x.strokeStyle="rgba(242,184,61,.6)";x.lineWidth=1.5;x.beginPath();x.moveTo(820,676);x.lineTo(1080,676);x.stroke();
+ x.fillStyle="#AEB6E0";x.font="400 18px 'Golos Text', sans-serif";x.fillText(tt.sign,950,702);
+ // number
+ x.fillStyle="rgba(174,182,224,.7)";x.font="400 15px 'JetBrains Mono', monospace";x.fillText("№ "+num+"  ·  digitalcreatorhub.github.io/Claude-skill-hill",W/2,782);
+ if(!ok){x.save();x.translate(W/2,H/2);x.rotate(-.35);x.fillStyle="rgba(255,255,255,.13)";x.font="700 150px Unbounded, sans-serif";x.fillText(tt.sample,0,50);x.restore()}}
 function certBlob(){return new Promise(r=>$("#cert").toBlob(r,"image/png"))}
 $("#certDl").onclick=async()=>{const b=await certBlob(),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="claude-skill-hill-certificate.png";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)};
 $("#certSh").onclick=async()=>{try{const b=await certBlob(),f=new File([b],"claude-skill-hill.png",{type:"image/png"});
